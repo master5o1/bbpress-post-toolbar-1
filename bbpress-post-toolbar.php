@@ -4,7 +4,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  * Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
  * Dependencies: bbpress/bbpress.php
- * Version: 0.1
+ * Version: 0.2
  * Author: Jason Schwarzenberger
  * Author URI: http://master5o1.com/
  */
@@ -306,7 +306,11 @@ class bbp_5o1_toolbar {
 			<ul id="buttons" style="list-style-type: none;"><?php
 				$i = 0;
 				foreach ($items as $item) :
-					?><li><a onclick="do_button({'action':'<?php print $item['action']; ?>','panel':'post-toolbar-item-<?php print $i; ?>'<?php if ($item['action'] == 'insert_data' || $item['action'] == 'insert_shortcode') { print ",'data':'".$item['data']."'"; } ?>});"><?php echo $item['inside_anchor']; ?></a></li><?php
+					if ($item['action'] == 'api_item') : 
+						?><li><a onclick="do_button({action : '<?php echo $item['action']; ?>', panel : 'post-toolbar-item-<?php print $i; ?>'}, <?php echo $item['data']; ?>)"><?php echo $item['inside_anchor']; ?></a></li><?php
+					else:
+						?><li><a onclick="do_button({ action : '<?php echo $item['action']; ?>', panel : 'post-toolbar-item-<?php print $i; ?>' }, function(){ return '<?php if ($item['action'] == 'insert_data' || $item['action'] == 'insert_shortcode') { echo $item['data']; } ?>';})"><?php echo $item['inside_anchor']; ?></a></li><?php
+					endif;
 					$i++;
 				endforeach;
 			  ?><li class="right-button"><a onclick="switch_panel('post-toolbar-item-help');">Help</a></li>

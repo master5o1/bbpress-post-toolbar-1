@@ -2,7 +2,7 @@
  * Plugin Name: bbPress Post Toolbar
  * Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  * Description: Post toolbar for click-to-insert HTML.
- * Version: 0.1
+ * Version: 0.2
  * Author: master5o1
  * Author URI: http://master5o1.com
  */
@@ -133,13 +133,15 @@ function testText(tag_s, tag_e) {
 	}
 }
 
-function do_button(args) {
+function do_button(args, f) {
 	if (args.action == 'switch_panel')
 		switch_panel(args.panel);
 	if (args.action == 'insert_data')
-		insert_data(args.data);
+		insert_data(f());
 	if (args.action == 'insert_shortcode')
-		insert_shortcode(args.data);
+		insert_shortcode(f());
+	if (args.action == 'api_item')
+		f();
 	
 }
 
