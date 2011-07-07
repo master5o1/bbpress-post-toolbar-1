@@ -4,7 +4,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  * Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
  * Dependencies: bbpress/bbpress.php
- * Version: 0.2
+ * Version: 0.2.1
  * Author: Jason Schwarzenberger
  * Author URI: http://master5o1.com/
  */
@@ -50,7 +50,7 @@ register_deactivation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_deactivati
 // Plugin class:
 class bbp_5o1_toolbar {
 
-	function version() { return "0.1"; }
+	function version() { return "0.2.1"; }
 	
 	function plugin_activation() {
 		add_option( 'bbp_5o1_toolbar_use_custom_smilies', false, '', 'yes' );

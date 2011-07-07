@@ -4,7 +4,7 @@ Donate link: http://master5o1.com/donate/
 Tags: bbPress, bbPress 2.0, toolbar, youtube, 5o1, master5o1
 Requires at least: 3.1 or higher
 Tested up to: 3.2
-Stable tag: 0.2
+Stable tag: 0.2.1
 
 Post toolbar for bbPress 2.0.
 
