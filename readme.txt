@@ -67,13 +67,15 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 * First release.
 
-== To Do ==
+== Other Notes ==
+
+= To Do =
 
 * Read up about translations and stuff.  Figure out how to have translations be possible.
 * ???
 * Relax and have a cup of hot chocolate.
 
-== Custom Buttons ==
+= Custom Buttons =
 
 The following is about standard push buttons, not panel opening buttons.  To see how a panel opening button works just view the bbpress-post-toolbar.php source.
 
