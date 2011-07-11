@@ -1,10 +1,10 @@
 === bbPress Post Toolbar ===
 Contributors: master5o1
 Donate link: http://master5o1.com/donate/
-Tags: bbPress, bbPress 2.0, toolbar, youtube, 5o1, master5o1
-Requires at least: 3.1 or higher
+Tags: bbPress, bbPress 2.0, toolbar, youtube, smilies, smileys, emoticons, 5o1, master5o1
+Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2
-Stable tag: 0.2.1
+Stable tag: 0.3.0
 
 Post toolbar for bbPress 2.0.
 
@@ -30,11 +30,15 @@ You might also be interested in my other bbPress 2.0 related plugin: [bbPress Ig
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Configure the options in the bbPress Post Toolbar settings page.
 
+It is a good idea to copy or move the smilies directory included with this plugin to the wp-content directory.
+
 == Frequently Asked Questions ==
 
-= Question =
+= Could you explain how to use customised smilies? =
 
-Answer
+I have included a simple set of smilies with this plugin in the `bbpress-post-toolbar/smilies/` directory.  Changing the files will obviously change what the smilies look like.  But edit the package-config.php file inside this directory to change the code binding to a particular image.
+
+I recommend that this folder is either copied or moved to the `/wp-content/` directory so that any customised smilies that you have added are not lost on an upgrade to this plugin.
 
 == Screenshots ==
 
@@ -44,20 +48,30 @@ Answer
 
 == Changelog ==
 
-= 0.2 =
+= 0.3.0 =
+
+* Reorganised the plugin options page and added some notes about each option.  Suggestion to move `/smilies/`, etc.
+* Allowed the option to have the master5o1 credit be linked back to my website.  Default = not linked.
+* Made smilies directory preference be `wp-content/smilies/`, then fall back to `wp-content/plugins/bbpress-post-toolbar/smilies/`, then fall back to WordPress' default set.
+
+= 0.2.1 =
+
+* Accidentally forgot to increase the version that was displayed in the About panel on the toolbar.
+
+= 0.2.0 =
 
 * Add Button API is actually usable now.
 * Allowed custom javascript functions to be run through the Add Button api so that adding a button is actually doable.
 
-= 0.1 =
+= 0.1.0 =
 
 * First release.
 
-== Upgrade Notice ==
+== To Do ==
 
-= 0.1 =
-
-* None
+* Read up about translations and stuff.  Figure out how to have translations be possible.
+* ???
+* Relax and have a cup of hot chocolate.
 
 == Custom Buttons ==
 

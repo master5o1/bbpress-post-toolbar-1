@@ -4,7 +4,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  * Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
  * Dependencies: bbpress/bbpress.php
- * Version: 0.2.1
+ * Version: 0.3.0
  * Author: Jason Schwarzenberger
  * Author URI: http://master5o1.com/
  */
@@ -34,6 +34,8 @@ if ( get_option('bbp_5o1_toolbar_use_custom_smilies') ) {
 	add_filter( 'smilies_src', array('bbp_5o1_toolbar', 'switch_smileys_url'), 0, 3 );
 	if ( file_exists(str_replace('plugins/bbpress-post-toolbar','smilies/package-config.php', dirname(__FILE__))) )
 		require_once(str_replace('plugins/bbpress-post-toolbar','smilies/package-config.php', dirname(__FILE__)));
+	elseif ( file_exists(dirname(__FILE__) . '/smilies/package-config.php') )
+		require_once('smilies/package-config.php');
 }
 
 // bbPress 2.0 Actions & Filters:
@@ -50,13 +52,14 @@ register_deactivation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_deactivati
 // Plugin class:
 class bbp_5o1_toolbar {
 
-	function version() { return "0.2.1"; }
+	function version() { return "0.3.0"; }
 	
 	function plugin_activation() {
 		add_option( 'bbp_5o1_toolbar_use_custom_smilies', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_youtube', true, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_textalign', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_images', false, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_show_credit', false, '', 'yes' );
 	}
 	
 	function plugin_deactivation() {
@@ -64,6 +67,7 @@ class bbp_5o1_toolbar {
 		delete_option( 'bbp_5o1_toolbar_use_youtube' );
 		delete_option( 'bbp_5o1_toolbar_use_textalign' );
 		delete_option( 'bbp_5o1_toolbar_use_images' );
+		delete_option( 'bbp_5o1_toolbar_show_credit' );
 	}
 	
 	function admin_add_settings_link( $links, $file ) {
@@ -91,41 +95,65 @@ class bbp_5o1_toolbar {
 		$images = false;
 		if ( get_option('bbp_5o1_toolbar_use_images') )
 			$images = true;
+		$credit = true;
+		if ( get_option('bbp_5o1_toolbar_show_credit') )
+			$credit = true;
 		?>
 		<div class="wrap">
-			<h2>bbPress Post Toolbar Options</h2>
-			<form method="post" action="">
-				<p>
-					<strong>Use customised smilies?</strong><br />
-					<span style="margin: 0 50px;">
-					<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="1" <?php print (($custom_smilies) ? 'checked="checked"' : '' ) ?> /> Yes</label>
-					<label><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="0" <?php print ((!$custom_smilies) ? 'checked="checked"' : '' ) ?> /> No (default)</label>
-					</span>
-				</p>
-				<p>
-					<strong>Allow embedding of Youtube videos?</strong><br />
-					<span style="margin: 0 50px;">
-					<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="1" <?php print (($youtube) ? 'checked="checked"' : '' ) ?> /> Yes (default)</label>
-					<label><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="0" <?php print ((!$youtube) ? 'checked="checked"' : '' ) ?> /> No</label>
-					</span>
-				</p>
-				<p>
-					<strong>Allow text-alignment buttons?</strong><br />
-					<span style="margin: 0 50px;">
-					<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="1" <?php print (($textalign) ? 'checked="checked"' : '' ) ?> /> Yes</label>
-					<label><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="0" <?php print ((!$textalign) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
-					</span>
-				</p>
-				<p>
-					<strong>Allow images to be posted?</strong><br />
-					<span style="margin: 0 50px;">
-					<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_images" type="radio" value="1" <?php print (($images) ? 'checked="checked"' : '' ) ?> /> Yes</label>
-					<label><input name="bbp_5o1_toolbar_use_images" type="radio" value="0" <?php print ((!$images) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
-					</span>
-				</p>
-				<input type="hidden" name="bbpress-post-toolbar" value="bbpress-post-toolbar" />
-				<input type="submit" value="Submit" />
-			</form>
+			<div style="max-width: 600px;">
+				<h2>bbPress Post Toolbar</h2>
+				Plugin Version <?php echo bbp_5o1_toolbar::version(); ?><br />
+				If you enjoy this plugin, please consider making a <a href="http://master5o1.com/donate/">donation</a> to master5o1 as a token of thanks.
+				<h3>Options</h3>
+				<form method="post" action="">
+					<p>
+						<strong>Use customised smilies?</strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="1" <?php print (($custom_smilies) ? 'checked="checked"' : '' ) ?> /> Yes</label>
+						<label><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="0" <?php print ((!$custom_smilies) ? 'checked="checked"' : '' ) ?> /> No (default)</label>
+						</span><br />
+						<div style="margin: 0 50px;"><small>Note: It is recommended that the <code>/wp-content/plugins/bbpress-post-toolbar/smilies/</code> directory is copied or moved to the <code>/wp-content/</code> directory.  This is to prevent any custom smilies that you may have added from being lost on an upgrade to this plugin.</small></div>
+					</p>
+					<p>
+						<strong>Allow embedding of Youtube videos?</strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="1" <?php print (($youtube) ? 'checked="checked"' : '' ) ?> /> Yes (default)</label>
+						<label><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="0" <?php print ((!$youtube) ? 'checked="checked"' : '' ) ?> /> No</label>
+						</span><br />
+						<div style="margin: 0 50px;"><small>Note: To embed a video, the YouTube video link must be wrapped using the [youtube] shortcode  An example is shown on the YouTube panel in the toolbar.</small></div>
+					</p>
+					<p>
+						<strong>Allow text-alignment buttons?</strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="1" <?php print (($textalign) ? 'checked="checked"' : '' ) ?> /> Yes</label>
+						<label><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="0" <?php print ((!$textalign) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
+						</span>
+					</p>
+					<p>
+						<strong>Allow images to be posted?</strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_images" type="radio" value="1" <?php print (($images) ? 'checked="checked"' : '' ) ?> /> Yes</label>
+						<label><input name="bbp_5o1_toolbar_use_images" type="radio" value="0" <?php print ((!$images) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
+						</span><br />
+						<div style="margin: 0 50px;"><small>Note: Allowing images in bbPress posts will also allow them in WordPress comments.  I will try to disable this when I have learnt a bit more about WordPress and bbPress.</small></div>
+					</p>
+					<p>
+						<strong>Link to master5o1's website in the About panel as a credit to the plugin developer?</strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_show_credit" type="radio" value="1" <?php print (($credit) ? 'checked="checked"' : '' ) ?> /> Yes</label>
+						<label><input name="bbp_5o1_toolbar_show_credit" type="radio" value="0" <?php print ((!$credit) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
+						</span><br />
+						<div style="margin: 0 50px;">
+							<span><strong>Example:</strong> Version <?php print bbp_5o1_toolbar::version(); ?> by <a href="http://master5o1.com/" title="master5o1's website">master5o1</a>.</span><br />
+							<span><strong>Default:</strong> Version <?php print bbp_5o1_toolbar::version(); ?> by master5o1.</span><br />
+							<small>Note: 'No' will still show 'master5o1' but it will not be linked to my website.</small>
+						</div>
+					</p>
+
+					<input type="hidden" name="bbpress-post-toolbar" value="bbpress-post-toolbar" />
+					<input type="submit" value="Submit" />
+				</form>
+			</div>
 		</div>
 		<?php
 	}
@@ -153,6 +181,11 @@ class bbp_5o1_toolbar {
 					update_option('bbp_5o1_toolbar_use_images', true);
 				elseif ($_POST['bbp_5o1_toolbar_use_images'] == 0)
 					update_option('bbp_5o1_toolbar_use_images', false);
+					
+				if ($_POST['bbp_5o1_toolbar_show_credit'] == 1)
+					update_option('bbp_5o1_toolbar_show_credit', true);
+				elseif ($_POST['bbp_5o1_toolbar_show_credit'] == 0)
+					update_option('bbp_5o1_toolbar_show_credit', false);
 			
 			}
 		}
@@ -185,6 +218,8 @@ class bbp_5o1_toolbar {
 	function switch_smileys_url($link, $img, $url) {
 		if ( file_exists(str_replace('plugins/bbpress-post-toolbar','smilies/package-config.php', dirname(__FILE__))) )
 			return $url . "/wp-content/smilies/" . $img;
+		elseif ( file_exists(dirname(__FILE__) . '/smilies/package-config.php') )
+			return $url . "/wp-content/plugins/bbpress-post-toolbar/smilies/" . $img;
 		return $link;
 	}
 
@@ -228,13 +263,15 @@ class bbp_5o1_toolbar {
 				$data .= '<a class="smiley" onclick="insert_smiley(\''.$code.'\');">' . str_replace("class='wp-smiley' ", '', convert_smilies($code)) . '</a>';
 			}
 		} elseif ($panel == 'youtube') {
+			$random_yt[] = "http://www.youtube.com/watch?v=RSJbYWPEaxw";
+			$random_yt[] = "http://www.youtube.com/watch?v=GI6CfKcMhjY";
 			$random_yt[] = "http://www.youtube.com/watch?v=XCspzg9-bAg";
 			$random_yt[] = "http://www.youtube.com/watch?v=RZ-uV72pQKI";
 			$random_yt[] = "http://www.youtube.com/watch?v=rgUrqGFxV3Q";
 			$data = '<div style="width: 310px; display: inline-block;"><span>Youtube URL:</span><br />
 <input style="display:inline-block;width:300px;" type="text" id="youtube_url" value="" /></div>
 <a class="toolbar-apply" style="margin-top: 1.4em;" onclick="insert_panel(\'youtube\');">Apply Link</a>
-<p style="font-size: x-small;">Example: [youtube]'.$random_yt[rand(0, (count($random_yt)-1))].'[/youtube]</p>';
+<p style="font-size: x-small;">Random Example: [youtube]'.$random_yt[rand(0, (count($random_yt)-1))].'[/youtube]</p>';
 		}
 		return $data;
 	}
@@ -284,8 +321,7 @@ class bbp_5o1_toolbar {
 		$items[] = array( 'action' => 'insert_data',
 						  'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/code.png" title="Code" alt="Code" />',
 						  'data' => 'code');
-		if ( get_option('bbp_5o1_toolbar_use_textalign') ) { // Toggle to true if you want to show the buttons for Left/Center/Justify/Right alignment of text.
-		// To be honest, I don't think it's really necessary.
+		if ( get_option('bbp_5o1_toolbar_use_textalign') ) {
 			$items[] = array( 'action' => 'insert_data',
 							 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/fontleft.png" title="Left Align" alt="Left Align" />',
 							 'data' => 'fontleft');
@@ -332,7 +368,7 @@ class bbp_5o1_toolbar {
 			<div id="post-toolbar-item-about" class="panel">
 				<h4 style="display: inline-block;">About bbPress Post Toolbar</h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-help');">Help</a></span>
 				<p>This toolbar allows simple click-to-add HTML elements.</p>
-				<p>Version <?php print bbp_5o1_toolbar::version(); ?> by master5o1.</p>
+				<p>Version <?php print bbp_5o1_toolbar::version(); ?> by <?php if ( get_option('bbp_5o1_toolbar_show_credit') ) : ?><a href="http://master5o1.com/" title="master5o1's website">master5o1</a><?php else: ?>master5o1<?php endif; ?>.</p>
 			</div>
 		</div>
 		<?php
@@ -379,7 +415,7 @@ class bbp_5o1_toolbar {
 }
 
 // Extend kses to allow <span>
-if (  !CUSTOM_TAGS ) {
+if ( !CUSTOM_TAGS ) {
 	$allowedtags['span'] = array(
 			'style' => array());
 	if ( get_option('bbp_5o1_toolbar_use_images') ) {
