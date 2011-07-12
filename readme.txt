@@ -48,6 +48,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Changelog ==
 
+= 0.3.2 =
+
+* Adding __() and _e() to allow for translations.
+* Haha, turns out I forgot the version info in about plugin again. -_-
+
 = 0.3.1 =
 
 * Changing the plugin header to try and get the Active Versions pie 
