@@ -1,13 +1,12 @@
 <?php
 /**
- * Plugin Name: bbPress Post Toolbar
- * Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
- * Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- * Dependencies: bbpress/bbpress.php
- * Version: 0.3.0
- * Author: Jason Schwarzenberger
- * Author URI: http://master5o1.com/
- */
+ Plugin Name: bbPress Post Toolbar
+ Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
+ Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
+ Version: 0.3.3
+ Author: Jason Schwarzenberger
+ Author URI: http://master5o1.com/
+*/
 /*  Copyright 2011  Jason Schwarzenberger  (email : jason@master5o1.com)
 
     This program is free software; you can redistribute it and/or modify
@@ -49,10 +48,15 @@ add_shortcode( 'youtube', array('bbp_5o1_toolbar', 'youtube_shortcode') );
 register_activation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_activation') );
 register_deactivation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_deactivation') );
 
+load_plugin_textdomain('bbp_5o1_toolbar', false, basename( dirname( __FILE__ ) ) . '/languages' );
+
 // Plugin class:
 class bbp_5o1_toolbar {
 
-	function version() { return "0.3.0"; }
+	function version() {
+		$plugin_data = get_file_data( __FILE__, array( 'Version' => 'Version' ), 'plugin' );
+		return $plugin_data['Version'];
+	}
 	
 	function plugin_activation() {
 		add_option( 'bbp_5o1_toolbar_use_custom_smilies', false, '', 'yes' );
@@ -73,7 +77,7 @@ class bbp_5o1_toolbar {
 	function admin_add_settings_link( $links, $file ) {
 		if ( 'bbpress-post-toolbar/bbpress-post-toolbar.php' != $file )
 			return $links;
-		$settings_link = '<a href="' . admin_url( 'plugins.php?page=bbpress-post-toolbar' ) . '">' . __( 'Settings' ) . '</a>';
+		$settings_link = '<a href="' . admin_url( 'plugins.php?page=bbpress-post-toolbar' ) . '">' . __( 'Settings', 'bbp_5o1_toolbar') . '</a>';
 		array_unshift( $links, $settings_link );
 		return $links;
 	}
@@ -95,58 +99,60 @@ class bbp_5o1_toolbar {
 		$images = false;
 		if ( get_option('bbp_5o1_toolbar_use_images') )
 			$images = true;
-		$credit = true;
+		$credit = false;
 		if ( get_option('bbp_5o1_toolbar_show_credit') )
 			$credit = true;
 		?>
 		<div class="wrap">
 			<div style="max-width: 600px;">
 				<h2>bbPress Post Toolbar</h2>
-				Plugin Version <?php echo bbp_5o1_toolbar::version(); ?><br />
-				If you enjoy this plugin, please consider making a <a href="http://master5o1.com/donate/">donation</a> to master5o1 as a token of thanks.
-				<h3>Options</h3>
+				<?php _e('Plugin Version', 'bbp_5o1_toolbar'); ?> <?php echo bbp_5o1_toolbar::version(); ?><br />
+				<?php _e('If you enjoy this plugin, please consider making a <a href="http://master5o1.com/donate/">donation</a> to master5o1 as a token of thanks.', 'bbp_5o1_toolbar'); ?>
+				<h3><?php _e('Options', 'bbp_5o1_toolbar'); ?></h3>
 				<form method="post" action="">
 					<p>
-						<strong>Use customised smilies?</strong><br /><br />
+						<strong><?php _e('Use customised smilies?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="1" <?php print (($custom_smilies) ? 'checked="checked"' : '' ) ?> /> Yes</label>
-						<label><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="0" <?php print ((!$custom_smilies) ? 'checked="checked"' : '' ) ?> /> No (default)</label>
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="1" <?php print (($custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="0" <?php print ((!$custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
-						<div style="margin: 0 50px;"><small>Note: It is recommended that the <code>/wp-content/plugins/bbpress-post-toolbar/smilies/</code> directory is copied or moved to the <code>/wp-content/</code> directory.  This is to prevent any custom smilies that you may have added from being lost on an upgrade to this plugin.</small></div>
+						<div style="margin: 0 50px;"><small><?php _e('Note: It is recommended that the <code>/wp-content/plugins/bbpress-post-toolbar/smilies/</code> directory is copied or moved to the <code>/wp-content/</code> directory.  This is to prevent any custom smilies that you may have added from being lost on an upgrade to this plugin.', 'bbp_5o1_toolbar'); ?></small></div>
 					</p>
 					<p>
-						<strong>Allow embedding of Youtube videos?</strong><br /><br />
+						<strong><?php _e('Allow embedding of Youtube videos?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="1" <?php print (($youtube) ? 'checked="checked"' : '' ) ?> /> Yes (default)</label>
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="1" <?php print (($youtube) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes (default)', 'bbp_5o1_toolbar'); ?></label>
 						<label><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="0" <?php print ((!$youtube) ? 'checked="checked"' : '' ) ?> /> No</label>
 						</span><br />
-						<div style="margin: 0 50px;"><small>Note: To embed a video, the YouTube video link must be wrapped using the [youtube] shortcode  An example is shown on the YouTube panel in the toolbar.</small></div>
+						<div style="margin: 0 50px;"><small><?php _e('Note: To embed a video, the YouTube video link must be wrapped using the [youtube] shortcode  An example is shown on the YouTube panel in the toolbar.', 'bbp_5o1_toolbar'); ?></small></div>
 					</p>
 					<p>
-						<strong>Allow text-alignment buttons?</strong><br /><br />
+						<strong><?php _e('Allow text-alignment buttons?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="1" <?php print (($textalign) ? 'checked="checked"' : '' ) ?> /> Yes</label>
-						<label><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="0" <?php print ((!$textalign) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="1" <?php print (($textalign) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="0" <?php print ((!$textalign) ? 
+'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span>
 					</p>
 					<p>
-						<strong>Allow images to be posted?</strong><br /><br />
+						<strong><?php _e('Allow images to be posted?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_images" type="radio" value="1" <?php print (($images) ? 'checked="checked"' : '' ) ?> /> Yes</label>
-						<label><input name="bbp_5o1_toolbar_use_images" type="radio" value="0" <?php print ((!$images) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_images" type="radio" value="1" <?php print (($images) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_use_images" type="radio" value="0" <?php print ((!$images) ? 
+'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
-						<div style="margin: 0 50px;"><small>Note: Allowing images in bbPress posts will also allow them in WordPress comments.  I will try to disable this when I have learnt a bit more about WordPress and bbPress.</small></div>
+						<div style="margin: 0 50px;"><small><?php _e('Note: Allowing images in bbPress posts will also allow them in WordPress comments.  I will try to disable this when I have learnt a bit more about WordPress and bbPress.', 'bbp_5o1_toolbar'); ?></small></div>
 					</p>
 					<p>
-						<strong>Link to master5o1's website in the About panel as a credit to the plugin developer?</strong><br /><br />
+						<strong><?php _e('Link to master5o1&#39;s website in the About panel as a credit to the plugin developer?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_show_credit" type="radio" value="1" <?php print (($credit) ? 'checked="checked"' : '' ) ?> /> Yes</label>
-						<label><input name="bbp_5o1_toolbar_show_credit" type="radio" value="0" <?php print ((!$credit) ? 'checked="checked"' : '' ) ?> /> No(default)</label>
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_show_credit" type="radio" value="1" <?php print (($credit) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_show_credit" type="radio" value="0" <?php print ((!$credit) ? 
+'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
 						<div style="margin: 0 50px;">
-							<span><strong>Example:</strong> Version <?php print bbp_5o1_toolbar::version(); ?> by <a href="http://master5o1.com/" title="master5o1's website">master5o1</a>.</span><br />
-							<span><strong>Default:</strong> Version <?php print bbp_5o1_toolbar::version(); ?> by master5o1.</span><br />
-							<small>Note: 'No' will still show 'master5o1' but it will not be linked to my website.</small>
+							<span><strong><?php _e('Example', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), '<a href="http://master5o1.com/" title="master5o1&#39;s website">master5o1</a>' ); ?></span><br />
+							<span><strong><?php _e('Default', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), 'master5o1' ); ?></small>
 						</div>
 					</p>
 
@@ -193,7 +199,7 @@ class bbp_5o1_toolbar {
 	
 	function admin_add_config_link() {
 		if ( function_exists('add_submenu_page') )
-			add_submenu_page('plugins.php', __('bbPress Post Toolbar Options'), __('bbPress Post Toolbar'), 'manage_options', 'bbpress-post-toolbar', array('bbp_5o1_toolbar','plugin_options_page') );
+			add_submenu_page('plugins.php', __('bbPress Post Toolbar Options', 'bbp_5o1_toolbar'), __('bbPress Post Toolbar', 'bbp_5o1_toolbar'), 'manage_options', 'bbpress-post-toolbar', array('bbp_5o1_toolbar','plugin_options_page') );
 	}
 	
 	function do_youtube_shortcode($content) {
@@ -349,7 +355,7 @@ class bbp_5o1_toolbar {
 					endif;
 					$i++;
 				endforeach;
-			  ?><li class="right-button"><a onclick="switch_panel('post-toolbar-item-help');">Help</a></li>
+			  ?><li class="right-button"><a onclick="switch_panel('post-toolbar-item-help');"><?php _e( 'Help', 'bbp_5o1_toolbar'); ?></a></li>
 			</ul>
 			<?php
 			$i = 0;
@@ -360,15 +366,15 @@ class bbp_5o1_toolbar {
 				$i++;
 			endforeach;
 			?><div id="post-toolbar-item-help" class="panel">
-			<h4 style="display: inline-block;">bbPress Post Toolbar Help</h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-about');">About</a></span>
-			<p>This toolbar allows simple click-to-add HTML elements.</p>
-			<p>For the options that are simple buttons (e.g. bold, italics), one can select text and then click the button to apply the tag around the selected text.</p>
-			<p>For the options at open panels (e.g. link), open the panel first, add the url to the text box (if link), then hit Apply Link.  If it's font sizing or colors, then select the text and click the size you want, e.g., xx-small.</p>
+			<h4 style="display: inline-block;">bbPress Post Toolbar <?php _e('Help', 'bbp_5o1_toolbar'); ?></h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-about');"><?php _e('About', 'bbp_5o1_toolbar'); ?></a></span>
+			<p><?php _e("This toolbar allows simple click-to-add HTML elements.", 'bbp_5o1_toolbar'); ?></p>
+			<p><?php _e("For the options that are simple buttons (e.g. bold, italics), one can select text and then click the button to apply the tag around the selected text.", 'bbp_5o1_toolbar'); ?></p>
+			<p><?php _e("For the options at open panels (e.g. link), open the panel first, add the url to the text box (if link), then hit Apply Link.  If it's font sizing or colors, then select the text and click the size you want, e.g., xx-small.", 'bbp_5o1_toolbar'); ?></p>
 			</div>
 			<div id="post-toolbar-item-about" class="panel">
-				<h4 style="display: inline-block;">About bbPress Post Toolbar</h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-help');">Help</a></span>
-				<p>This toolbar allows simple click-to-add HTML elements.</p>
-				<p>Version <?php print bbp_5o1_toolbar::version(); ?> by <?php if ( get_option('bbp_5o1_toolbar_show_credit') ) : ?><a href="http://master5o1.com/" title="master5o1's website">master5o1</a><?php else: ?>master5o1<?php endif; ?>.</p>
+				<h4 style="display: inline-block;"><?php _e('About', 'bbp_5o1_toolbar'); ?> bbPress Post Toolbar</h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-help');"><?php _e('Help', 'bbp_5o1_toolbar'); ?></a></span>
+				<p><?php _e("This toolbar allows simple click-to-add HTML elements.", 'bbp_5o1_toolbar'); ?></p>
+				<p><?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), ((get_option('bbp_5o1_toolbar_show_credit') ? '<a href="http://master5o1.com/" title="master5o1&#39;s website">master5o1</a>' : 'master5o1') ) ); ?></p>
 			</div>
 		</div>
 		<?php
