@@ -4,7 +4,7 @@ Donate link: http://master5o1.com/donate/
 Tags: bbPress, bbPress 2.0, toolbar, youtube, smilies, smileys, emoticons, 5o1, master5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2
-Stable tag: 0.3.2
+Stable tag: 0.3.3
 
 Post toolbar for bbPress 2.0.
 
@@ -48,6 +48,10 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Changelog ==
 
+= 0.3.3 =
+
+* Programmatically determined what the plugin version is so that I can't forget to update the version in the About panel, etc.
+
 = 0.3.2 =
 
 * Added `/languages/bbpress-post-toolbar.pot` file to the plugin for translations to be done.
@@ -77,6 +81,14 @@ chart working.
 = 0.1.0 =
 
 * First release.
+
+== Upgrade Notices ==
+
+= 0.3.3 =
+You can actually ignore this update, it's just me getting some minor things done.
+
+= 0.3.2 =
+Added translation .pot file so that people can have custom translations.
 
 == Other Notes ==
 

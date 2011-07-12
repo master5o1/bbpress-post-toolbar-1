@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.3.2
+ Version: 0.3.3
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -53,7 +53,10 @@ load_plugin_textdomain('bbp_5o1_toolbar', false, basename( dirname( __FILE__ ) )
 // Plugin class:
 class bbp_5o1_toolbar {
 
-	function version() { return "0.3.2"; }
+	function version() {
+		$plugin_data = get_file_data( __FILE__, array( 'Version' => 'Version' ), 'plugin' );
+		return $plugin_data['Version'];
+	}
 	
 	function plugin_activation() {
 		add_option( 'bbp_5o1_toolbar_use_custom_smilies', false, '', 'yes' );
@@ -103,7 +106,7 @@ class bbp_5o1_toolbar {
 		<div class="wrap">
 			<div style="max-width: 600px;">
 				<h2>bbPress Post Toolbar</h2>
-				<?php _e('Plugin Version', 'bbp_5o1_toolbar'); echo bbp_5o1_toolbar::version(); ?><br />
+				<?php _e('Plugin Version', 'bbp_5o1_toolbar'); ?> <?php echo bbp_5o1_toolbar::version(); ?><br />
 				<?php _e('If you enjoy this plugin, please consider making a <a href="http://master5o1.com/donate/">donation</a> to master5o1 as a token of thanks.', 'bbp_5o1_toolbar'); ?>
 				<h3><?php _e('Options', 'bbp_5o1_toolbar'); ?></h3>
 				<form method="post" action="">
