@@ -4,7 +4,7 @@ Donate link: http://master5o1.com/donate/
 Tags: bbPress, bbPress 2.0, toolbar, youtube, smilies, smileys, emoticons, 5o1, master5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 
 Post toolbar for bbPress 2.0.
 
@@ -48,6 +48,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Changelog ==
 
+= 0.3.1 =
+
+* Changing the plugin header to try and get the Active Versions pie 
+chart working.
+
 = 0.3.0 =
 
 * Reorganised the plugin options page and added some notes about each option.  Suggestion to move `/smilies/`, etc.
@@ -67,13 +72,15 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 * First release.
 
-== To Do ==
+== Other Notes ==
+
+= To Do =
 
 * Read up about translations and stuff.  Figure out how to have translations be possible.
 * ???
 * Relax and have a cup of hot chocolate.
 
-== Custom Buttons ==
+= Custom Buttons =
 
 The following is about standard push buttons, not panel opening buttons.  To see how a panel opening button works just view the bbpress-post-toolbar.php source.
 
