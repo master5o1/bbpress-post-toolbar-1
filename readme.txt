@@ -4,7 +4,7 @@ Donate link: http://master5o1.com/donate/
 Tags: bbPress, bbPress 2.0, toolbar, youtube, smilies, smileys, emoticons, 5o1, master5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 
 Post toolbar for bbPress 2.0.
 
@@ -47,6 +47,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 1. Toolbar options in WP Admin.
 
 == Changelog ==
+
+= 0.3.1 =
+
+* Changing the plugin header to try and get the Active Versions pie 
+chart working.
 
 = 0.3.0 =
 

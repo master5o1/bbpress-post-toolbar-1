@@ -1,13 +1,12 @@
 <?php
 /**
- * Plugin Name: bbPress Post Toolbar
- * Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
- * Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- * Dependencies: bbpress/bbpress.php
- * Version: 0.3.0
- * Author: Jason Schwarzenberger
- * Author URI: http://master5o1.com/
- */
+ Plugin Name: bbPress Post Toolbar
+ Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
+ Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
+ Version: 0.3.1
+ Author: Jason Schwarzenberger
+ Author URI: http://master5o1.com/
+*/
 /*  Copyright 2011  Jason Schwarzenberger  (email : jason@master5o1.com)
 
     This program is free software; you can redistribute it and/or modify
