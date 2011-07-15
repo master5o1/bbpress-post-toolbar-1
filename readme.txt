@@ -12,6 +12,7 @@ Post toolbar for bbPress 2.0.
 
 Post toolbar for bbPress 2.0.
 
+* Toolbar is automatically shown, though it can be set to manual insertion.
 * Enables embedding of images in a bbPress post (turn it on in the settings).
 * Allows &lt;span style=""&gt; in a bbPress posts.
 * Allows embedding of youtube videos using [youtube]http://...[/youtube] shortcode.
@@ -29,6 +30,11 @@ You might also be interested in my other bbPress 2.0 related plugin: [bbPress Ig
 1. Move or copy the `smilies` folder to `/wp-content/` directory. (So it doesn't get changed on upgrades).
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Configure the options in the bbPress Post Toolbar settings page.
+
+If you choose to set the bar to manual insertion rather than automatic, then you will need to add this to your theme file, or where ever you might want to show the bar:
+
+* `<?php do_action('bbp_post_toolbar_insertion'); ?>`
+
 
 It is a good idea to copy or move the smilies directory included with this plugin to the wp-content directory.
 
