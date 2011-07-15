@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the bbPress Post Toolbar package.
 msgid ""
 msgstr ""
-"Project-Id-Version: bbPress Post Toolbar 0.3.2\n"
+"Project-Id-Version: bbPress Post Toolbar 0.4.0\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress-post-toolbar\n"
-"POT-Creation-Date: 2011-07-12 02:24:29+00:00\n"
+"POT-Creation-Date: 2011-07-15 09:11:05+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,43 +12,45 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: bbpress-post-toolbar.php:77
+#: bbpress-post-toolbar.php:93
 msgid "Settings"
 msgstr ""
 
-#: bbpress-post-toolbar.php:84
+#: bbpress-post-toolbar.php:100
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: bbpress-post-toolbar.php:106
+#: bbpress-post-toolbar.php:125
 msgid "Plugin Version"
 msgstr ""
 
-#: bbpress-post-toolbar.php:107
+#: bbpress-post-toolbar.php:126
 msgid ""
 "If you enjoy this plugin, please consider making a <a href=\"http://"
 "master5o1.com/donate/\">donation</a> to master5o1 as a token of thanks."
 msgstr ""
 
-#: bbpress-post-toolbar.php:108
+#: bbpress-post-toolbar.php:127
 msgid "Options"
 msgstr ""
 
-#: bbpress-post-toolbar.php:111
+#: bbpress-post-toolbar.php:130
 msgid "Use customised smilies?"
 msgstr ""
 
-#: bbpress-post-toolbar.php:113 bbpress-post-toolbar.php:129
-#: bbpress-post-toolbar.php:137 bbpress-post-toolbar.php:146
+#: bbpress-post-toolbar.php:132 bbpress-post-toolbar.php:148
+#: bbpress-post-toolbar.php:156 bbpress-post-toolbar.php:165
+#: bbpress-post-toolbar.php:185
 msgid "Yes"
 msgstr ""
 
-#: bbpress-post-toolbar.php:114 bbpress-post-toolbar.php:131
-#: bbpress-post-toolbar.php:139 bbpress-post-toolbar.php:148
+#: bbpress-post-toolbar.php:133 bbpress-post-toolbar.php:150
+#: bbpress-post-toolbar.php:158 bbpress-post-toolbar.php:167
+#: bbpress-post-toolbar.php:187
 msgid "No (default)"
 msgstr ""
 
-#: bbpress-post-toolbar.php:116
+#: bbpress-post-toolbar.php:135
 msgid ""
 "Note: It is recommended that the <code>/wp-content/plugins/bbpress-post-"
 "toolbar/smilies/</code> directory is copied or moved to the <code>/wp-"
@@ -56,84 +58,103 @@ msgid ""
 "may have added from being lost on an upgrade to this plugin."
 msgstr ""
 
-#: bbpress-post-toolbar.php:119
+#: bbpress-post-toolbar.php:138
 msgid "Allow embedding of Youtube videos?"
 msgstr ""
 
-#: bbpress-post-toolbar.php:121
+#: bbpress-post-toolbar.php:140
 msgid "Yes (default)"
 msgstr ""
 
-#: bbpress-post-toolbar.php:124
+#: bbpress-post-toolbar.php:143
 msgid ""
 "Note: To embed a video, the YouTube video link must be wrapped using the "
 "[youtube] shortcode  An example is shown on the YouTube panel in the toolbar."
 msgstr ""
 
-#: bbpress-post-toolbar.php:127
+#: bbpress-post-toolbar.php:146
 msgid "Allow text-alignment buttons?"
 msgstr ""
 
-#: bbpress-post-toolbar.php:135
+#: bbpress-post-toolbar.php:154
 msgid "Allow images to be posted?"
 msgstr ""
 
-#: bbpress-post-toolbar.php:141
+#: bbpress-post-toolbar.php:160
 msgid ""
 "Note: Allowing images in bbPress posts will also allow them in WordPress "
 "comments.  I will try to disable this when I have learnt a bit more about "
 "WordPress and bbPress."
 msgstr ""
 
-#: bbpress-post-toolbar.php:144
+#: bbpress-post-toolbar.php:163
 msgid ""
 "Link to master5o1&#39;s website in the About panel as a credit to the plugin "
 "developer?"
 msgstr ""
 
-#: bbpress-post-toolbar.php:151
+#: bbpress-post-toolbar.php:170
 msgid "Example"
 msgstr ""
 
-#: bbpress-post-toolbar.php:151 bbpress-post-toolbar.php:152
-#: bbpress-post-toolbar.php:374
+#: bbpress-post-toolbar.php:170 bbpress-post-toolbar.php:171
+#: bbpress-post-toolbar.php:420
 msgid "Version %s by %s."
 msgstr ""
 
-#: bbpress-post-toolbar.php:152
+#: bbpress-post-toolbar.php:171
 msgid "Default"
 msgstr ""
 
-#: bbpress-post-toolbar.php:199
+#: bbpress-post-toolbar.php:175
+msgid "Customised help panel message."
+msgstr ""
+
+#: bbpress-post-toolbar.php:178
+msgid "Clear the text area to revert to the default help panel message."
+msgstr ""
+
+#: bbpress-post-toolbar.php:183
+msgid "Allow manual insertion of the bar?"
+msgstr ""
+
+#: bbpress-post-toolbar.php:189
+msgid ""
+"Note: Manual bar insertion requires that you use <code>&lt;?php do_action"
+"( 'bbp_post_toolbar_insertion' ); ?&gt;</code> in your theme files, or "
+"wherever you desire the bar to appear."
+msgstr ""
+
+#: bbpress-post-toolbar.php:241
 msgid "bbPress Post Toolbar Options"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress Post Toolbar 0.3.2)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress Post Toolbar 0.4.0)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
-#: bbpress-post-toolbar.php:199
+#: bbpress-post-toolbar.php:241
 msgid "bbPress Post Toolbar"
 msgstr ""
 
-#: bbpress-post-toolbar.php:355 bbpress-post-toolbar.php:366
-#: bbpress-post-toolbar.php:372
+#: bbpress-post-toolbar.php:397 bbpress-post-toolbar.php:408
+#: bbpress-post-toolbar.php:418
 msgid "Help"
 msgstr ""
 
-#: bbpress-post-toolbar.php:366 bbpress-post-toolbar.php:372
+#: bbpress-post-toolbar.php:408 bbpress-post-toolbar.php:418
 msgid "About"
 msgstr ""
 
-#: bbpress-post-toolbar.php:367 bbpress-post-toolbar.php:373
+#: bbpress-post-toolbar.php:411 bbpress-post-toolbar.php:419
 msgid "This toolbar allows simple click-to-add HTML elements."
 msgstr ""
 
-#: bbpress-post-toolbar.php:368
+#: bbpress-post-toolbar.php:412
 msgid ""
 "For the options that are simple buttons (e.g. bold, italics), one can select "
 "text and then click the button to apply the tag around the selected text."
 msgstr ""
 
-#: bbpress-post-toolbar.php:369
+#: bbpress-post-toolbar.php:413
 msgid ""
 "For the options at open panels (e.g. link), open the panel first, add the "
 "url to the text box (if link), then hit Apply Link.  If it's font sizing or "
