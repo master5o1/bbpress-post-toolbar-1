@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.3.3
+ Version: 0.4.0
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -25,10 +25,15 @@
 
 // WordPress Actions & Filters:
 add_action( 'init', array('bbp_5o1_toolbar', 'plugin_do_options') );
+
+// TODO: Make these so they're only done on bbPress pages:
 add_action( 'wp_head' , array('bbp_5o1_toolbar', 'post_form_toolbar_script') );
-add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_delete') );
+if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
+	add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_delete') );
+
 add_action('admin_menu', array('bbp_5o1_toolbar', 'admin_add_config_link') );
 add_filter( 'plugin_action_links', array('bbp_5o1_toolbar', 'admin_add_settings_link') , 10, 2 );
+
 if ( get_option('bbp_5o1_toolbar_use_custom_smilies') ) {
 	add_filter( 'smilies_src', array('bbp_5o1_toolbar', 'switch_smileys_url'), 0, 3 );
 	if ( file_exists(str_replace('plugins/bbpress-post-toolbar','smilies/package-config.php', dirname(__FILE__))) )
@@ -38,8 +43,11 @@ if ( get_option('bbp_5o1_toolbar_use_custom_smilies') ) {
 }
 
 // bbPress 2.0 Actions & Filters:
-add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
 add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar', 'do_youtube_shortcode') );
+if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
+	add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
+	add_action( 'bbp_post_toolbar_insertion', array('bbp_5o1_toolbar','post_form_toolbar_bar') );
 
 // Shortcodes:
 add_shortcode( 'youtube', array('bbp_5o1_toolbar', 'youtube_shortcode') );
@@ -64,14 +72,19 @@ class bbp_5o1_toolbar {
 		add_option( 'bbp_5o1_toolbar_use_textalign', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_images', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_show_credit', false, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_custom_help', false, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_manual_insertion', false, '', 'yes' );
 	}
 	
 	function plugin_deactivation() {
+		// Perhaps allow a save-from-deletion option on deactivation?
 		delete_option( 'bbp_5o1_toolbar_use_custom_smilies' );
 		delete_option( 'bbp_5o1_toolbar_use_youtube' );
 		delete_option( 'bbp_5o1_toolbar_use_textalign' );
 		delete_option( 'bbp_5o1_toolbar_use_images' );
 		delete_option( 'bbp_5o1_toolbar_show_credit' );
+		delete_option( 'bbp_5o1_toolbar_custom_help' );
+		delete_option( 'bbp_5o1_toolbar_manual_insertion' );
 	}
 	
 	function admin_add_settings_link( $links, $file ) {
@@ -102,9 +115,12 @@ class bbp_5o1_toolbar {
 		$credit = false;
 		if ( get_option('bbp_5o1_toolbar_show_credit') )
 			$credit = true;
+		$manual = false;
+		if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
+			$manual = true;
 		?>
 		<div class="wrap">
-			<div style="max-width: 600px;">
+			<div style="max-width: 650px;">
 				<h2>bbPress Post Toolbar</h2>
 				<?php _e('Plugin Version', 'bbp_5o1_toolbar'); ?> <?php echo bbp_5o1_toolbar::version(); ?><br />
 				<?php _e('If you enjoy this plugin, please consider making a <a href="http://master5o1.com/donate/">donation</a> to master5o1 as a token of thanks.', 'bbp_5o1_toolbar'); ?>
@@ -152,10 +168,27 @@ class bbp_5o1_toolbar {
 						</span><br />
 						<div style="margin: 0 50px;">
 							<span><strong><?php _e('Example', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), '<a href="http://master5o1.com/" title="master5o1&#39;s website">master5o1</a>' ); ?></span><br />
-							<span><strong><?php _e('Default', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), 'master5o1' ); ?></small>
+							<span><strong><?php _e('Default', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), 'master5o1' ); ?></span>
+						</div>
+					</p>
+					<p>
+						<strong><?php _e('Customised help panel message.'); ?></strong></br /><br />
+						<textarea name="bbp_5o1_toolbar_custom_help" style="margin: 0 50px; min-height: 100px; min-width: 400px;"><?php echo get_option('bbp_5o1_toolbar_custom_help'); ?></textarea>
+						<div style="margin: 0 50px;">
+							<small><?php _e('Clear the text area to revert to the default help panel message.', 'bbp_5o1_toolbar'); ?></small>
 						</div>
 					</p>
 
+					<p>
+						<strong><?php _e('Allow manual insertion of the bar?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_manual_insertion" type="radio" value="1" <?php print (($manual) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_manual_insertion" type="radio" value="0" <?php print ((!$manual) ? 
+'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+						</span><br />
+						<div style="margin: 0 50px;"><small><?php _e("Note: Manual bar insertion requires that you use <code>&lt;?php do_action( 'bbp_post_toolbar_insertion' ); ?&gt;</code> in your theme files, or wherever you desire the bar to appear.", 'bbp_5o1_toolbar'); ?></small></div>
+					</p>
+					
 					<input type="hidden" name="bbpress-post-toolbar" value="bbpress-post-toolbar" />
 					<input type="submit" value="Submit" />
 				</form>
@@ -192,7 +225,13 @@ class bbp_5o1_toolbar {
 					update_option('bbp_5o1_toolbar_show_credit', true);
 				elseif ($_POST['bbp_5o1_toolbar_show_credit'] == 0)
 					update_option('bbp_5o1_toolbar_show_credit', false);
-			
+				
+				update_option('bbp_5o1_toolbar_custom_help', $_POST['bbp_5o1_toolbar_custom_help']);
+				
+				if ($_POST['bbp_5o1_toolbar_manual_insertion'] == 1)
+					update_option('bbp_5o1_toolbar_manual_insertion', true);
+				elseif ($_POST['bbp_5o1_toolbar_manual_insertion'] == 0)
+					update_option('bbp_5o1_toolbar_manual_insertion', false);
 			}
 		}
 	}
@@ -366,15 +405,19 @@ class bbp_5o1_toolbar {
 				$i++;
 			endforeach;
 			?><div id="post-toolbar-item-help" class="panel">
-			<h4 style="display: inline-block;">bbPress Post Toolbar <?php _e('Help', 'bbp_5o1_toolbar'); ?></h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-about');"><?php _e('About', 'bbp_5o1_toolbar'); ?></a></span>
-			<p><?php _e("This toolbar allows simple click-to-add HTML elements.", 'bbp_5o1_toolbar'); ?></p>
-			<p><?php _e("For the options that are simple buttons (e.g. bold, italics), one can select text and then click the button to apply the tag around the selected text.", 'bbp_5o1_toolbar'); ?></p>
-			<p><?php _e("For the options at open panels (e.g. link), open the panel first, add the url to the text box (if link), then hit Apply Link.  If it's font sizing or colors, then select the text and click the size you want, e.g., xx-small.", 'bbp_5o1_toolbar'); ?></p>
+				<h4 style="display: inline-block;">bbPress Post Toolbar <?php _e('Help', 'bbp_5o1_toolbar'); ?></h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-about');" style="cursor: pointer;"><?php _e('About', 'bbp_5o1_toolbar'); ?></a></span>
+				<div>
+			<?php if ( !get_option('bbp_5o1_toolbar_custom_help') ) : ?>
+				<p><?php _e("This toolbar allows simple click-to-add HTML elements.", 'bbp_5o1_toolbar'); ?></p>
+				<p><?php _e("For the options that are simple buttons (e.g. bold, italics), one can select text and then click the button to apply the tag around the selected text.", 'bbp_5o1_toolbar'); ?></p>
+				<p><?php _e("For the options at open panels (e.g. link), open the panel first, add the url to the text box (if link), then hit Apply Link.  If it's font sizing or colors, then select the text and click the size you want, e.g., xx-small.", 'bbp_5o1_toolbar'); ?></p>
+			<?php else: echo get_option('bbp_5o1_toolbar_custom_help'); endif; ?>
+				</div>
 			</div>
 			<div id="post-toolbar-item-about" class="panel">
-				<h4 style="display: inline-block;"><?php _e('About', 'bbp_5o1_toolbar'); ?> bbPress Post Toolbar</h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-help');"><?php _e('Help', 'bbp_5o1_toolbar'); ?></a></span>
+				<h4 style="display: inline-block;"><?php _e('About', 'bbp_5o1_toolbar'); ?> bbPress Post Toolbar</h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-help');" style="cursor: pointer;"><?php _e('Help', 'bbp_5o1_toolbar'); ?></a></span>
 				<p><?php _e("This toolbar allows simple click-to-add HTML elements.", 'bbp_5o1_toolbar'); ?></p>
-				<p><?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), ((get_option('bbp_5o1_toolbar_show_credit') ? '<a href="http://master5o1.com/" title="master5o1&#39;s website">master5o1</a>' : 'master5o1') ) ); ?></p>
+				<span><?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), ((get_option('bbp_5o1_toolbar_show_credit') ? '<a href="http://master5o1.com/" title="master5o1&#39;s website">master5o1</a>' : 'master5o1') ) ); ?></span>
 			</div>
 		</div>
 		<?php

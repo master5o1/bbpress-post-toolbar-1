@@ -3,8 +3,8 @@ Contributors: master5o1
 Donate link: http://master5o1.com/donate/
 Tags: bbPress, bbPress 2.0, toolbar, youtube, smilies, smileys, emoticons, 5o1, master5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
-Tested up to: 3.2
-Stable tag: 0.3.3
+Tested up to: 3.2.1
+Stable tag: 0.4.0
 
 Post toolbar for bbPress 2.0.
 
@@ -47,6 +47,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 1. Toolbar options in WP Admin.
 
 == Changelog ==
+
+= 0.4.0 =
+
+* Allowing the insertion of the bar set to manual, use `<?php do_action('bbp_post_toolbar_insertion'); ?>` in your theme file where ever you want the bar to appear.
+* Allowed the Help panel to be customised.
 
 = 0.3.3 =
 

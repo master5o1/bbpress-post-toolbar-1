@@ -60,7 +60,7 @@
 	display: none;
 	padding: 5px;
 	min-height: 50px;
-	max-height: 200;
+	/*max-height: 200px;*/
 	margin: 5px;
 	background: #f9f9f9;
 	border: solid 1px #e5e5e5;
