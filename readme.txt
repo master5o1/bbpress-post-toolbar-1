@@ -19,8 +19,6 @@ Post toolbar for bbPress 2.0.
 
 Has a weak ability to allow plugins to extend the toolbar.
 
-This is my first upload to WordPress Extend :D
-
 You might also be interested in my other bbPress 2.0 related plugin: [bbPress Ignore User](http://wordpress.org/extend/plugins/bbpress-ignore-user/)
 
 == Installation ==
@@ -53,6 +51,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 1. Toolbar options in WP Admin.
 
 == Changelog ==
+
+= 0.5.0-alpha =
+
+* Just added some file-upload but haven't tested it much.  Comitting to 
+trunk because calling it a day and leaving it where it is.
 
 = 0.4.0 =
 

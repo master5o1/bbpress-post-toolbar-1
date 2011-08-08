@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.4.1
+ Version: 0.5.0-alpha
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -42,13 +42,19 @@ if ( get_option('bbp_5o1_toolbar_use_custom_smilies') ) {
 		require_once('smilies/package-config.php');
 }
 
+if ( get_option('bbp_5o1_toolbar_use_images') ) {
+	add_filter('query_vars',array('bbp_5o1_toolbar','fileupload_trigger'));
+	add_action('template_redirect', array('bbp_5o1_toolbar','fileupload_trigger_check'));
+	add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'fileupload_start') );
+}
+
 // bbPress 2.0 Actions & Filters:
 add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar', 'do_youtube_shortcode') );
 if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
 if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'bbp_post_toolbar_insertion', array('bbp_5o1_toolbar','post_form_toolbar_bar') );
-
+	
 // Shortcodes:
 add_shortcode( 'youtube', array('bbp_5o1_toolbar', 'youtube_shortcode') );
 
@@ -279,11 +285,8 @@ class bbp_5o1_toolbar {
 <a class="toolbar-apply" style="margin-top: 1.4em;" onclick="insert_panel(\'link\');">Apply Link</a>
 <p style="font-size: x-small;">Hint: Paste the link URL into the <em>Link URL</em> text box, then select text and hit <a onclick="insert_panel(\'link\');">Apply Link</a> to use the selected text as the link name.</p>';
 		} elseif ($panel == 'image') {
-			$data = '<div style="width: 310px; display: inline-block;"><span>Image URL:</span><br />
-<input style="display:inline-block;width:300px;" type="text" id="image_url" value="" /></div>
-<div style="width: 310px; display: inline-block;"><span>Image Title: (optional)</span><br />
-<input style="display:inline-block;width:300px;" type="text" id="image_title" value="" /></div>
-<div style="clear:both;">Image hosting: <a href="http://ompldr.org" target="_blank">Omploader</a>, <a href="http://imgur.com" target="_blank">imgur</a><a class="toolbar-apply" onclick="insert_panel(\'image\');">Apply Image</a></div>';
+			$data = '<div id="post-form-image-uploader"><noscript><p>Please enable JavaScript to use file uploader.</p></noscript></div>
+<div style="margin: auto auto 5px;">Or use <code style="display:inline;padding: 2px;">&lt;img src=" " /&gt;</code> to post an externally linked image.</div>';
 		} elseif ($panel == 'color') {
 			$data = '<span title="Red" onclick="insert_color(\'red\');" style="background:red;width:50px;height:50px;display:inline-block;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;cursor:pointer;"></span>
 <span title="Green" onclick="insert_color(\'green\');" style="cursor:pointer;background:green;width:50px;height:50px;display:inline-block;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;cursor:pointer;"></span>
@@ -350,7 +353,7 @@ class bbp_5o1_toolbar {
 		$items[] = array( 'action' => 'switch_panel',
 						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/link.png" title="Link" alt="Link" />',
 						 'data' => bbp_5o1_toolbar::switch_panel('link'));
-		if ( get_option('bbp_5o1_toolbar_use_images') ) {
+		if ( get_option('bbp_5o1_toolbar_use_images')) {
 			$items[] = array( 'action' => 'switch_panel',
 							 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/image.png" title="Image" alt="Image" />',
 							 'data' => bbp_5o1_toolbar::switch_panel('image'));
@@ -454,10 +457,91 @@ class bbp_5o1_toolbar {
 
 	function post_form_toolbar_script() {
 		?>
+		<?php if ( get_option('bbp_5o1_toolbar_use_images') ) : ?>
+		<script type="text/javascript" src="<?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/fileuploader.js"></script>
+		<?php endif; ?>
 		<script type="text/javascript" src="<?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/toolbar.js"></script>
 		<style type="text/css">/*<![CDATA[*/
 			@import url( <?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/toolbar.css );
+			<?php if ( get_option('bbp_5o1_toolbar_use_images') ) : ?>
+			@import url( <?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/fileuploader.css );
+			<?php endif; ?>
 		/*]]>*/</style>
+		<?php
+	}
+	
+	function fileupload_trigger($vars) {
+		$vars[] = 'postform_fileupload';
+		return $vars;
+	}
+	
+	function fileupload_trigger_check() {
+		if ( intval(get_query_var('postform_fileupload')) == 1 ) {
+			if ( !is_user_logged_in() ) {
+				echo htmlspecialchars(json_encode(array("error"=>"User is not logged in.")), ENT_NOQUOTES);
+				exit;
+			}
+			require_once( dirname(__FILE__) . '/fileuploader.php' );
+			// list of valid extensions, ex. array("jpeg", "xml", "bmp")
+			$allowedExtensions = array('jpg', 'jpeg', 'png', 'gif');
+			// max file size in bytes
+			$sizeLimit = 5 * 1024 * 1024;
+			$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
+			$directory = wp_upload_dir();
+			$result = $uploader->handleUpload( $directory['path'].'/' );
+			// Construct the attachment array
+			$attachment = array(
+				'post_mime_type' => '',
+				'guid' => $directory['url'] . '/' . $result['filename'],
+				'post_parent' => 0,
+				'post_title' => $result['name'],
+				'post_content' => '',
+			);
+			
+			// Save the data
+			$id = wp_insert_attachment($attachment, $result['file'], 0);
+			$result['id'] = $id;
+			$result['attachment'] = $attachment;
+			
+			$result = array(
+				"success" => true,
+				"file" => $attachment['guid']
+			);
+			
+			// to pass data through iframe you will need to encode all html tags
+			echo htmlspecialchars(json_encode($result), ENT_NOQUOTES);
+			exit;
+		}
+	}
+	
+	function fileupload_start() {
+		?>
+		<script type="text/javascript">
+		jQuery(document).ready(function($) {
+			var uploader = new qq.FileUploader({
+				element: document.getElementById('post-form-image-uploader'),
+				action: '<?php print site_url() . '?postform_fileupload=' . '1'; ?>',
+				// additional data to send, name-value pairs
+				params: {},
+				// validation    
+				// ex. ['jpg', 'jpeg', 'png', 'gif'] or []
+				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],        
+				// each file size limit in bytes
+				// this option isn't supported in all browsers
+				sizeLimit: 5*1024*1024, // max size   
+				minSizeLimit: 0, // min size
+				// set to true to output server response to console
+				debug: true,
+				// events         
+				onComplete: function(id, fileName, responseJSON){
+					if (responseJSON.success != true) return
+					post_form = document.getElementById('bbp_reply_content');
+					if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+					post_form.value += ' <img src="' + responseJSON.file + '" alt="" /> '
+				},
+			});
+		});
+		</script>
 		<?php
 	}
 	
