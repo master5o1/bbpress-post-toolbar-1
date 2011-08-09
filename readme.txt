@@ -20,9 +20,9 @@ Post toolbar for bbPress 2.0.
 
 Has a weak ability to allow plugins to extend the toolbar.
 
-I would like to use my [website](http://master5o1.com/) for more direct support, feedback, bug reports and feature requests.
-
-I would also be very grateful of any donations received. ;)
+I would like to use my [website](http://master5o1.com/) for more direct 
+support, feedback, bug reports and feature requests.  Any donations will 
+be gratefully accepted. ;)
 
 == Installation ==
 
