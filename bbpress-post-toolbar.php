@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.5.0-alpha4
+ Version: 0.5.0-alpha5
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
