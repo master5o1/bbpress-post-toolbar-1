@@ -1,10 +1,10 @@
 === bbPress Post Toolbar ===
 Contributors: master5o1
 Donate link: http://master5o1.com/donate/
-Tags: bbPress, bbPress 2.0, toolbar, youtube, smilies, smileys, emoticons, 5o1, master5o1
+Tags: bbPress, bbPress 2.0, toolbar, youtube, images, smilies, smileys, emoticons, 5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2.1
-Stable tag: 0.4.1
+Stable tag: 0.5.0
 
 Post toolbar for bbPress 2.0.
 
@@ -22,7 +22,7 @@ Has a weak ability to allow plugins to extend the toolbar.
 
 I would like to use my [website](http://master5o1.com/) for more direct support, feedback, bug reports and feature requests.
 
-I would also be very gratefull of any donations received. ;)
+I would also be very grateful of any donations received. ;)
 
 == Installation ==
 
@@ -40,6 +40,15 @@ If you choose to set the bar to manual insertion rather than automatic, then you
 It is a good idea to copy or move the smilies directory included with this plugin to the wp-content directory.
 
 == Frequently Asked Questions ==
+
+= Can images be set a maximum width? =
+
+Easily.  In fact, I found that bbPress already does this in its default theme (and thus compatability theming will also).  Try putting the following into your theme's css:
+
+`#content .bbp-topic-content img,
+#content .bbp-reply-content img {
+	max-width: 100%;
+}`
 
 = Could you explain how to use customised smilies? =
 
@@ -59,7 +68,7 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 * Added image uploading using Valums' [Ajax Upload](http://valums.com/ajax-upload/) script.
 * Image uploading is turned on when allowing image posting is turned on.
-* Allowing Anonymous (unregistered users) to upload images is allowable in the settings (off by default).
+* Anonymous (unregistered users) can upload images if allowed in the settings (off by default).
 
 = 0.4.0 =
 
@@ -100,7 +109,12 @@ chart working.
 
 * First release.
 
-== Upgrade Notices ==
+== Upgrade Notice ==
+
+= 0.5.0 =
+This release brings in AJAX uploading of images to the Images panel.  I have used Valums' [Ajax Upload](http://valums.com/ajax-upload/) script; the default styling from his demo was retained while I familiarise myself with the script.  I intend to change the styling and visually integrate the script with the other parts of the panel.
+
+More information on my website: http://master5o1.com/2011/08/10/post-toolbar-version-0-5-0/
 
 = 0.3.3 =
 You can actually ignore this update, it's just me getting some minor things done.
