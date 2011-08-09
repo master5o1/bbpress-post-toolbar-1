@@ -14,12 +14,15 @@ Post toolbar for bbPress 2.0.
 
 * Toolbar is automatically shown, though it can be set to manual insertion.
 * Enables embedding of images in a bbPress post (turn it on in the settings).
+* Users can upload images directly to the site (Valums' [Ajax Upload](http://valums.com/ajax-upload/) script)
 * Allows &lt;span style=""&gt; in a bbPress posts.
 * Allows embedding of youtube videos using [youtube]http://...[/youtube] shortcode.
 
 Has a weak ability to allow plugins to extend the toolbar.
 
-You might also be interested in my other bbPress 2.0 related plugin: [bbPress Ignore User](http://wordpress.org/extend/plugins/bbpress-ignore-user/)
+I would like to use my [website](http://master5o1.com/) for more direct support, feedback, bug reports and feature requests.
+
+I would also be very gratefull of any donations received. ;)
 
 == Installation ==
 
@@ -52,10 +55,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Changelog ==
 
-= 0.5.0-alpha =
+= 0.5.0 =
 
-* Just added some file-upload but haven't tested it much.  Comitting to 
-trunk because calling it a day and leaving it where it is.
+* Added image uploading using Valums' [Ajax Upload](http://valums.com/ajax-upload/) script.
+* Image uploading is turned on when allowing image posting is turned on.
+* Allowing Anonymous (unregistered users) to upload images is allowable in the settings (off by default).
 
 = 0.4.0 =
 
@@ -108,8 +112,9 @@ Added translation .pot file so that people can have custom translations.
 
 = To Do =
 
-* Read up about translations and stuff.  Figure out how to have translations be possible.
-* ???
+* Enqueue the JS and such so it is printed really only when it is needed.
+* Clean some things.
+* Other things that I can't figure out yet.
 * Relax and have a cup of hot chocolate.
 
 = Custom Buttons =
