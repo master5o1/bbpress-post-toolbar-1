@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.5.0-alpha2
+ Version: 0.5.0-alpha4
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -177,7 +177,7 @@ class bbp_5o1_toolbar {
 						<label><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="0" <?php print ((!$anonymous_image_uploads) ? 
 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
-						<div style="margin: 0 50px;"><small><?php _e('Note: Note: This will only be relevant if you have allowed unregistered users to post replies in the forum.', 'bbp_5o1_toolbar'); ?></small></div>
+						<div style="margin: 0 50px;"><small><?php _e('Note: This will only be relevant if you have allowed unregistered users to post replies in the forum.', 'bbp_5o1_toolbar'); ?></small></div>
 					</p>
 					<p>
 						<strong><?php _e('Link to master5o1&#39;s website in the About panel as a credit to the plugin developer?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
@@ -347,7 +347,7 @@ class bbp_5o1_toolbar {
 		return $data;
 	}
 	
-	function post_form_toolbar_bar() {
+	function post_form_toolbar_bar($param = null) {
 		global $wpsmiliestrans;
 		$items = array();
 		$items[] = array( 'action' => 'insert_data',
@@ -447,6 +447,7 @@ class bbp_5o1_toolbar {
 			</div>
 		</div>
 		<?php
+		return $param;
 	}
 	
 	function post_form_toolbar_delete() {
@@ -479,6 +480,7 @@ class bbp_5o1_toolbar {
 	}
 
 	function post_form_toolbar_script() {
+		// Eventual goal is to change this to use wp_enqueue_scripts or what ever it is...later.
 		?>
 		<?php if ( get_option('bbp_5o1_toolbar_use_images') ) : ?>
 		<script type="text/javascript" src="<?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/fileuploader.js"></script>
@@ -501,13 +503,14 @@ class bbp_5o1_toolbar {
 	function fileupload_trigger_check() {
 		if ( intval(get_query_var('postform_fileupload')) == 1 ) {
 			if ( !is_user_logged_in() && !get_option('bbp_5o1_toolbar_allow_anonymous_image_uploads') ) {
-				echo htmlspecialchars(json_encode(array("error"=>"User is not logged in.")), ENT_NOQUOTES);
+				echo htmlspecialchars(json_encode(array("error"=>__("User is not logged in.", 'bbp_5o1_toolbar'))), ENT_NOQUOTES);
 				exit;
 			}
 			require_once( dirname(__FILE__) . '/fileuploader.php' );
 			// list of valid extensions, ex. array("jpeg", "xml", "bmp")
 			$allowedExtensions = array('jpg', 'jpeg', 'png', 'gif');
-			$allowedMimes = array(IMAGETYPE_JPEG, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF); // Because using Extensions only is very bad.
+			// Because using Extensions only is very bad.
+			$allowedMimes = array(IMAGETYPE_JPEG, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF);
 			// max file size in bytes
 			$sizeLimit = 5 * 1024 * 1024;
 			$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
@@ -516,7 +519,7 @@ class bbp_5o1_toolbar {
 			$mime = exif_imagetype($result['file']);
 			if ( !$mime || ! in_array($mime, $allowedMimes) ) {
 				$deleted = unlink($result['file']);
-				echo htmlspecialchars(json_encode(array("error"=>"Disallowed file type." . ($deleted ? 'true' : 'false'))), ENT_NOQUOTES);
+				echo htmlspecialchars(json_encode(array("error"=>__("Disallowed file type.", 'bbp_5o1_toolbar'))), ENT_NOQUOTES);
 				exit;
 			}
 			// Construct the attachment array
@@ -537,23 +540,20 @@ class bbp_5o1_toolbar {
 				"success" => true,
 				"file" => $attachment['guid']
 			);
-			
-			// to pass data through iframe you will need to encode all html tags
 			echo htmlspecialchars(json_encode($result), ENT_NOQUOTES);
 			exit;
 		}
 	}
 	
 	function fileupload_start() {
+		if ( !is_user_logged_in() && !get_option('bbp_5o1_toolbar_allow_anonymous_image_uploads') )
+			return;
 		?>
 		<script type="text/javascript">
-		// Apparently jQuery isn't actually required, so maybe we can go without?
-		//jQuery(document).ready(function($) {
 		function createUploader() {
 			var uploader = new qq.FileUploader({
 				element: document.getElementById('post-form-image-uploader'),
-				action: '<?php print site_url() . 
-'/?postform_fileupload=' . '1'; ?>',
+				action: '<?php print site_url() . '/?postform_fileupload=1'; ?>',
 				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],        
 				sizeLimit: 5*1024*1024, // max size   
 				onComplete: function(id, fileName, responseJSON){
@@ -565,7 +565,6 @@ class bbp_5o1_toolbar {
 			});
 		}
 		window.onload = createUploader;
-		//});
 		</script>
 		<?php
 	}
