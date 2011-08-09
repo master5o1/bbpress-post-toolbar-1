@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.5.0-alpha1
+ Version: 0.5.0-alpha2
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -552,7 +552,8 @@ class bbp_5o1_toolbar {
 		function createUploader() {
 			var uploader = new qq.FileUploader({
 				element: document.getElementById('post-form-image-uploader'),
-				action: '<?php print site_url() . '?postform_fileupload=' . '1'; ?>',
+				action: '<?php print site_url() . 
+'/?postform_fileupload=' . '1'; ?>',
 				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],        
 				sizeLimit: 5*1024*1024, // max size   
 				onComplete: function(id, fileName, responseJSON){
