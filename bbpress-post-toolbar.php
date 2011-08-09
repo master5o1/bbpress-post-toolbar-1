@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.5.0-alpha
+ Version: 0.5.0-alpha1
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -80,6 +80,7 @@ class bbp_5o1_toolbar {
 		add_option( 'bbp_5o1_toolbar_show_credit', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_custom_help', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_manual_insertion', false, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads', false, '', 'yes' );
 	}
 	
 	function plugin_deactivation() {
@@ -91,6 +92,7 @@ class bbp_5o1_toolbar {
 		delete_option( 'bbp_5o1_toolbar_show_credit' );
 		delete_option( 'bbp_5o1_toolbar_custom_help' );
 		delete_option( 'bbp_5o1_toolbar_manual_insertion' );
+		delete_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' );
 	}
 	
 	function admin_add_settings_link( $links, $file ) {
@@ -124,6 +126,9 @@ class bbp_5o1_toolbar {
 		$manual = false;
 		if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 			$manual = true;
+		$anonymous_image_uploads = false;
+		if ( get_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' ) )
+			$anonymous_image_uploads = true;
 		?>
 		<div class="wrap">
 			<div style="max-width: 650px;">
@@ -164,6 +169,15 @@ class bbp_5o1_toolbar {
 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
 						<div style="margin: 0 50px;"><small><?php _e('Note: Allowing images in bbPress posts will also allow them in WordPress comments.  I will try to disable this when I have learnt a bit more about WordPress and bbPress.', 'bbp_5o1_toolbar'); ?></small></div>
+					</p>
+					<p>
+						<strong><?php _e('Allow unregistered users to upload images?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="1" <?php print (($anonymous_image_uploads) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="0" <?php print ((!$anonymous_image_uploads) ? 
+'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+						</span><br />
+						<div style="margin: 0 50px;"><small><?php _e('Note: Note: This will only be relevant if you have allowed unregistered users to post replies in the forum.', 'bbp_5o1_toolbar'); ?></small></div>
 					</p>
 					<p>
 						<strong><?php _e('Link to master5o1&#39;s website in the About panel as a credit to the plugin developer?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
@@ -238,6 +252,12 @@ class bbp_5o1_toolbar {
 					update_option('bbp_5o1_toolbar_manual_insertion', true);
 				elseif ($_POST['bbp_5o1_toolbar_manual_insertion'] == 0)
 					update_option('bbp_5o1_toolbar_manual_insertion', false);
+
+				if ($_POST['bbp_5o1_toolbar_allow_anonymous_image_uploads'] == 1)
+					update_option('bbp_5o1_toolbar_allow_anonymous_image_uploads', true);
+				elseif ($_POST['bbp_5o1_toolbar_allow_anonymous_image_uploads'] == 0)
+					update_option('bbp_5o1_toolbar_allow_anonymous_image_uploads', false);					
+				
 			}
 		}
 	}
@@ -285,8 +305,11 @@ class bbp_5o1_toolbar {
 <a class="toolbar-apply" style="margin-top: 1.4em;" onclick="insert_panel(\'link\');">Apply Link</a>
 <p style="font-size: x-small;">Hint: Paste the link URL into the <em>Link URL</em> text box, then select text and hit <a onclick="insert_panel(\'link\');">Apply Link</a> to use the selected text as the link name.</p>';
 		} elseif ($panel == 'image') {
-			$data = '<div id="post-form-image-uploader"><noscript><p>Please enable JavaScript to use file uploader.</p></noscript></div>
-<div style="margin: auto auto 5px;">Or use <code style="display:inline;padding: 2px;">&lt;img src=" " /&gt;</code> to post an externally linked image.</div>';
+			$data = '<div><span>Image URL:</span>
+<input style="display:inline-block;width:300px;" type="text" id="image_url" value="" />
+<input type="hidden" id="image_title" value="" />
+<a class="toolbar-apply" onclick="insert_panel(\'image\');">Apply Image</a></div>
+<div id="post-form-image-uploader"><noscript><p>Please enable JavaScript to use file uploader.</p></noscript></div>';
 		} elseif ($panel == 'color') {
 			$data = '<span title="Red" onclick="insert_color(\'red\');" style="background:red;width:50px;height:50px;display:inline-block;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;cursor:pointer;"></span>
 <span title="Green" onclick="insert_color(\'green\');" style="cursor:pointer;background:green;width:50px;height:50px;display:inline-block;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;cursor:pointer;"></span>
@@ -477,25 +500,32 @@ class bbp_5o1_toolbar {
 	
 	function fileupload_trigger_check() {
 		if ( intval(get_query_var('postform_fileupload')) == 1 ) {
-			if ( !is_user_logged_in() ) {
+			if ( !is_user_logged_in() && !get_option('bbp_5o1_toolbar_allow_anonymous_image_uploads') ) {
 				echo htmlspecialchars(json_encode(array("error"=>"User is not logged in.")), ENT_NOQUOTES);
 				exit;
 			}
 			require_once( dirname(__FILE__) . '/fileuploader.php' );
 			// list of valid extensions, ex. array("jpeg", "xml", "bmp")
 			$allowedExtensions = array('jpg', 'jpeg', 'png', 'gif');
+			$allowedMimes = array(IMAGETYPE_JPEG, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF); // Because using Extensions only is very bad.
 			// max file size in bytes
 			$sizeLimit = 5 * 1024 * 1024;
 			$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
 			$directory = wp_upload_dir();
 			$result = $uploader->handleUpload( $directory['path'].'/' );
+			$mime = exif_imagetype($result['file']);
+			if ( !$mime || ! in_array($mime, $allowedMimes) ) {
+				$deleted = unlink($result['file']);
+				echo htmlspecialchars(json_encode(array("error"=>"Disallowed file type." . ($deleted ? 'true' : 'false'))), ENT_NOQUOTES);
+				exit;
+			}
 			// Construct the attachment array
 			$attachment = array(
-				'post_mime_type' => '',
+				'post_mime_type' => $mime ? image_type_to_mime_type($mime) : '',
 				'guid' => $directory['url'] . '/' . $result['filename'],
 				'post_parent' => 0,
 				'post_title' => $result['name'],
-				'post_content' => '',
+				'post_content' => 'Image uploaded for a forum topic or reply.',
 			);
 			
 			// Save the data
@@ -517,22 +547,14 @@ class bbp_5o1_toolbar {
 	function fileupload_start() {
 		?>
 		<script type="text/javascript">
-		jQuery(document).ready(function($) {
+		// Apparently jQuery isn't actually required, so maybe we can go without?
+		//jQuery(document).ready(function($) {
+		function createUploader() {
 			var uploader = new qq.FileUploader({
 				element: document.getElementById('post-form-image-uploader'),
 				action: '<?php print site_url() . '?postform_fileupload=' . '1'; ?>',
-				// additional data to send, name-value pairs
-				params: {},
-				// validation    
-				// ex. ['jpg', 'jpeg', 'png', 'gif'] or []
 				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],        
-				// each file size limit in bytes
-				// this option isn't supported in all browsers
 				sizeLimit: 5*1024*1024, // max size   
-				minSizeLimit: 0, // min size
-				// set to true to output server response to console
-				debug: true,
-				// events         
 				onComplete: function(id, fileName, responseJSON){
 					if (responseJSON.success != true) return
 					post_form = document.getElementById('bbp_reply_content');
@@ -540,7 +562,9 @@ class bbp_5o1_toolbar {
 					post_form.value += ' <img src="' + responseJSON.file + '" alt="" /> '
 				},
 			});
-		});
+		}
+		window.onload = createUploader;
+		//});
 		</script>
 		<?php
 	}
