@@ -109,7 +109,7 @@ chart working.
 
 * First release.
 
-== Upgrade Notice ==
+== Upgrade Notices ==
 
 = 0.5.0 =
 This release brings in AJAX uploading of images to the Images panel.  I have used Valums' [Ajax Upload](http://valums.com/ajax-upload/) script; the default styling from his demo was retained while I familiarise myself with the script.  I intend to change the styling and visually integrate the script with the other parts of the panel.
