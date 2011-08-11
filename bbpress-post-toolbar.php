@@ -28,13 +28,8 @@ add_action( 'init', array('bbp_5o1_toolbar', 'plugin_do_options') );
 add_action('admin_menu', array('bbp_5o1_toolbar', 'admin_add_config_link') );
 add_filter( 'plugin_action_links', array('bbp_5o1_toolbar', 'admin_add_settings_link') , 10, 2 );
 
-
-
 if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_delete') );
-
-
-
 
 if ( get_option('bbp_5o1_toolbar_use_custom_smilies') ) {
 	add_filter( 'smilies_src', array('bbp_5o1_toolbar', 'switch_smileys_url'), 0, 3 );
@@ -205,15 +200,6 @@ class bbp_5o1_toolbar {
 						</div>
 					</div>
 					<p>
-
-
-
-
-
-
-
-
-
 						<strong><?php _e('Link to master5o1&#39;s website in the About panel as a credit to the plugin developer?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
 						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_show_credit" type="radio" value="1" <?php print (($credit) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
@@ -232,7 +218,6 @@ class bbp_5o1_toolbar {
 							<small><?php _e('Clear the text area to revert to the default help panel message.', 'bbp_5o1_toolbar'); ?></small>
 						</div>
 					</p>
-
 					<p>
 						<strong><?php _e('Allow manual insertion of the bar?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
@@ -241,8 +226,7 @@ class bbp_5o1_toolbar {
 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
 						<div style="margin: 0 50px;"><small><?php _e("Note: Manual bar insertion requires that you use <code>&lt;?php do_action( 'bbp_post_toolbar_insertion' ); ?&gt;</code> in your theme files, or wherever you desire the bar to appear.", 'bbp_5o1_toolbar'); ?></small></div>
-					</p>
-					
+					</p>					
 					<input type="hidden" name="bbpress-post-toolbar" value="bbpress-post-toolbar" />
 					<input type="submit" value="Submit" />
 				</form>
@@ -255,35 +239,22 @@ class bbp_5o1_toolbar {
 		if ( !is_admin() || !current_user_can('manage_options') )
 			return;
 		if (isset($_POST['bbpress-post-toolbar']) && $_POST['bbpress-post-toolbar'] == "bbpress-post-toolbar") {
-		
 
 			if ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 1)
 				update_option('bbp_5o1_toolbar_use_custom_smilies', true);
 			elseif ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 0)
 				update_option('bbp_5o1_toolbar_use_custom_smilies', false);
 				
-
 			if ($_POST['bbp_5o1_toolbar_use_youtube'] == 1)
 				update_option('bbp_5o1_toolbar_use_youtube', true);
 			elseif ($_POST['bbp_5o1_toolbar_use_youtube'] == 0)
 				update_option('bbp_5o1_toolbar_use_youtube', false);
 				
-
 			if ($_POST['bbp_5o1_toolbar_use_textalign'] == 1)
 				update_option('bbp_5o1_toolbar_use_textalign', true);
 			elseif ($_POST['bbp_5o1_toolbar_use_textalign'] == 0)
 				update_option('bbp_5o1_toolbar_use_textalign', false);
 
-
-
-
-
-
-
-
-
-
-				
 			if ($_POST['bbp_5o1_toolbar_use_images'] == 1)
 				update_option('bbp_5o1_toolbar_use_images', true);
 			elseif ($_POST['bbp_5o1_toolbar_use_images'] == 0)
@@ -309,8 +280,7 @@ class bbp_5o1_toolbar {
 			if ($_POST['bbp_5o1_toolbar_allow_image_uploads'] == 1)
 				update_option('bbp_5o1_toolbar_allow_image_uploads', true);
 			elseif ($_POST['bbp_5o1_toolbar_allow_image_uploads'] == 0)
-				update_option('bbp_5o1_toolbar_allow_image_uploads', false);				
-			
+				update_option('bbp_5o1_toolbar_allow_image_uploads', false);
 
 		}
 	}
@@ -538,24 +508,12 @@ class bbp_5o1_toolbar {
 		wp_register_script( 'bbp_5o1_post_toolbar_script', plugins_url('toolbar.js', __FILE__) );
 		wp_register_style( 'bbp_5o1_post_toolbar_style', plugins_url('toolbar.css', __FILE__) );
 		
-
-
-
-
-
 		wp_enqueue_script( 'bbp_5o1_post_toolbar_script' );
 		wp_enqueue_style( 'bbp_5o1_post_toolbar_style' );
 		if ( ( get_option( 'bbp_5o1_toolbar_use_images' ) && get_option( 'bbp_5o1_toolbar_allow_image_uploads' ) ) && ( is_user_logged_in() || get_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' ) ) ) {
 			wp_enqueue_script( 'bbp_5o1_post_toolbar_uploader_script' );
 			wp_enqueue_style( 'bbp_5o1_post_toolbar_uploader_style' );
 		}
-
-
-
-
-
-
-
 	}
 	
 	function fileupload_trigger($vars) {
