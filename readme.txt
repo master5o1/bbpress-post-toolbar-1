@@ -4,7 +4,7 @@ Donate link: http://master5o1.com/donate/
 Tags: bbPress, bbPress 2.0, toolbar, youtube, images, smilies, smileys, emoticons, 5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2.1
-Stable tag: 0.5.1
+Stable tag: 0.5.5
 
 Post toolbar for bbPress 2.0.
 
@@ -123,7 +123,7 @@ chart working.
 
 == Upgrade Notice ==
 
-= 0.5.1 =
+= 0.5.5 =
 This release changes a lot: You will need to activate at least one of the sub-plugins to see the buttons.  I suggest at the minimum the formatting one.
 
 = 0.5.0 =
@@ -139,6 +139,7 @@ Added translation .pot file so that people can have custom translations.
 
 == To Do ==
 
+* Go to sleep.
 * Clean some things.
 * Other things that I can't figure out yet.
 * Relax and have a cup of hot chocolate.
