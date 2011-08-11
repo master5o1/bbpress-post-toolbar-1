@@ -1,0 +1,113 @@
+/* CSS for bbPress-post-toolbar plugin to WordPress. */
+
+#post-toolbar { }
+
+#post-toolbar #buttons {
+	line-height: 28px;
+	list-style-type: none;
+	background: #fff;
+	border: solid 1px #e5e5e5;
+	-moz-box-shadow: 0px 1px 5px #e9e9e9;
+	-webkit-box-shadow: 0px 1px 5px #e9e9e9;
+	box-shadow: 0px 1px 5px #e9e9e9;
+	padding: 0 0;
+	margin: auto 0 5px;
+}
+
+#post-toolbar #buttons li {
+	display: inline-block;
+	border-right: solid 1px #f1f1f1;
+	min-width: 28px;
+	text-align: center;
+}
+
+#post-toolbar #buttons li.right-button {
+	border-right: none;
+	border-left: solid 1px #f1f1f1;
+	float: right;
+	padding: 0 5px;
+}
+
+#post-toolbar #buttons li:hover {
+	background: #f1f1f1;
+}
+
+#post-toolbar #buttons li a {
+	width: 100%;
+	height: 28px;
+	display: inline-block;
+	color: inherit;
+	vertical-align: middle;
+	padding: none;
+}
+
+#post-toolbar #buttons li a:hover {
+	color: inherit;
+	cursor: pointer;
+}
+
+#post-toolbar #buttons li a img {
+	height: 16px;
+	width: 16px;
+	padding: 6px;
+	vertical-align: middle;
+	padding: none;
+	margin: none;
+	border: none;
+}
+
+#post-toolbar .panel {
+	display: none;
+	padding: 5px;
+	min-height: 50px;
+	/*max-height: 200px;*/
+	margin: 5px;
+	background: #f9f9f9;
+	border: solid 1px #e5e5e5;
+	-moz-box-shadow: 0px 1px 5px #e9e9e9;
+	-webkit-box-shadow: 0px 1px 5px #e9e9e9;
+	box-shadow: 0px 1px 5px #e9e9e9;
+}
+
+#post-toolbar .panel .size {
+	cursor: pointer;
+	margin: auto 5px;
+}
+
+#post-toolbar .panel .size:hover {
+	text-decoration: underline;
+}
+
+#post-toolbar .panel .smiley {
+	border: none;
+	display: inline-block;
+	margin: 1px 3px 4px;
+	padding: 1px 3px 2px;
+}
+
+#post-toolbar .panel .smiley:hover {
+	border: none;
+	border-bottom: solid 3px #888;
+	margin-bottom: 1px;
+}
+
+#post-toolbar .panel .smiley img {
+	border: none;
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+}
+
+#post-toolbar .panel .toolbar-apply {
+	display: inline-block;
+	margin: auto 10px;
+	padding: 2px 5px;
+	min-width: 100px;
+	text-align: center;
+	border: solid 1px #e5e5e5;
+	background: #ffffff;
+	-moz-box-shadow: 0px 1px 5px #e9e9e9;
+	-webkit-box-shadow: 0px 1px 5px #e9e9e9;
+	box-shadow: 0px 1px 5px #e9e9e9;
+	cursor: pointer;
+}

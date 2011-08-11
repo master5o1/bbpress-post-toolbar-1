@@ -16,9 +16,9 @@ Post toolbar for bbPress 2.0.
 * Enables embedding of images in a bbPress post (turn it on in the settings).
 * Users can upload images directly to the site (Valums' [Ajax Upload](http://valums.com/ajax-upload/) script)
 * Allows &lt;span style=""&gt; in a bbPress posts.
-* Allows embedding of youtube videos using [youtube]http://...[/youtube] shortcode.
-
-Has a weak ability to allow plugins to extend the toolbar.
+* Embeds online videos from multiple providers (Youtube, Dailymotion, Vimeo, Metacafe) using [video]http://...[video]
+* Also provides a [youtube]http://...[/youtube] shortcode.
+* Toolbar items all pluggable, defaults can be turned off and replaced by custom ones.
 
 I would like to use my [website](http://master5o1.com/) for more direct 
 support, feedback, bug reports and feature requests.  Any donations will 
@@ -63,6 +63,13 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 1. Toolbar options in WP Admin.
 
 == Changelog ==
+
+= 0.5.5 =
+* Extracted the buttons and panels into four sub-plugins: video, smilies, formatting & images.
+* Above allowed for ordering of the buttons (by those categories); default ordering is formatting, images, video, smilies.
+* Added [video][/video] shortcode to replace the [youtube] one.  This is because I added more providers.
+* Video providers are Youtube, Dailymotion, Vimeo and Metacafe.
+* Removed the allow images option because it is implied when the images sub-plugin is activated.
 
 = 0.5.1 =
 * Allowed image uploading to be optional, that is, while posting images is still allowable, uploading them is not.
@@ -114,7 +121,10 @@ chart working.
 
 * First release.
 
-== Upgrade Notices ==
+== Upgrade Notice ==
+
+= 0.5.1 =
+This release changes a lot: You will need to activate at least one of the sub-plugins to see the buttons.  I suggest at the minimum the formatting one.
 
 = 0.5.0 =
 This release brings in AJAX uploading of images to the Images panel.  I have used Valums' [Ajax Upload](http://valums.com/ajax-upload/) script; the default styling from his demo was retained while I familiarise myself with the script.  I intend to change the styling and visually integrate the script with the other parts of the panel.
