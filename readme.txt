@@ -129,7 +129,6 @@ Added translation .pot file so that people can have custom translations.
 
 == To Do ==
 
-* Enqueue the JS and such so it is printed really only when it is needed.
 * Clean some things.
 * Other things that I can't figure out yet.
 * Relax and have a cup of hot chocolate.
