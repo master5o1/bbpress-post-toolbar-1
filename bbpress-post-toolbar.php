@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.5.0
+ Version: 0.5.1
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -25,30 +25,34 @@
 
 // WordPress Actions & Filters:
 add_action( 'init', array('bbp_5o1_toolbar', 'plugin_do_options') );
-
-// TODO: Make these so they're only done on bbPress pages:
-add_action( 'wp_head' , array('bbp_5o1_toolbar', 'post_form_toolbar_script') );
-if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
-	add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_delete') );
-
 add_action('admin_menu', array('bbp_5o1_toolbar', 'admin_add_config_link') );
 add_filter( 'plugin_action_links', array('bbp_5o1_toolbar', 'admin_add_settings_link') , 10, 2 );
 
+
+
+if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
+	add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_delete') );
+
+
+
+
 if ( get_option('bbp_5o1_toolbar_use_custom_smilies') ) {
 	add_filter( 'smilies_src', array('bbp_5o1_toolbar', 'switch_smileys_url'), 0, 3 );
-	if ( file_exists(str_replace('plugins/bbpress-post-toolbar','smilies/package-config.php', dirname(__FILE__))) )
-		require_once(str_replace('plugins/bbpress-post-toolbar','smilies/package-config.php', dirname(__FILE__)));
+	if ( file_exists(WP_CONTENT_DIR . '/smilies/package-config.php') )
+		require_once(WP_CONTENT_DIR . '/smilies/package-config.php');
 	elseif ( file_exists(dirname(__FILE__) . '/smilies/package-config.php') )
-		require_once('smilies/package-config.php');
+		require_once(dirname(__FILE__) . '/smilies/package-config.php');
 }
 
-if ( get_option('bbp_5o1_toolbar_use_images') ) {
+// Image Uploading from the bar:
+if ( ( get_option( 'bbp_5o1_toolbar_use_images' ) && get_option( 'bbp_5o1_toolbar_allow_image_uploads' ) ) ) {
 	add_filter('query_vars',array('bbp_5o1_toolbar','fileupload_trigger'));
 	add_action('template_redirect', array('bbp_5o1_toolbar','fileupload_trigger_check'));
 	add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'fileupload_start') );
 }
 
 // bbPress 2.0 Actions & Filters:
+add_action( 'bbp_init' , array('bbp_5o1_toolbar', 'script_and_style') );
 add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar', 'do_youtube_shortcode') );
 if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
@@ -81,6 +85,7 @@ class bbp_5o1_toolbar {
 		add_option( 'bbp_5o1_toolbar_custom_help', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_manual_insertion', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads', false, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_allow_image_uploads', true, '', 'yes' );
 	}
 	
 	function plugin_deactivation() {
@@ -93,6 +98,7 @@ class bbp_5o1_toolbar {
 		delete_option( 'bbp_5o1_toolbar_custom_help' );
 		delete_option( 'bbp_5o1_toolbar_manual_insertion' );
 		delete_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' );
+		delete_option( 'bbp_5o1_toolbar_allow_image_uploads' );
 	}
 	
 	function admin_add_settings_link( $links, $file ) {
@@ -129,9 +135,12 @@ class bbp_5o1_toolbar {
 		$anonymous_image_uploads = false;
 		if ( get_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' ) )
 			$anonymous_image_uploads = true;
+		$image_uploads = false;
+		if ( get_option( 'bbp_5o1_toolbar_allow_image_uploads' ) )
+			$image_uploads = true;
 		?>
 		<div class="wrap">
-			<div style="max-width: 650px;">
+			<div style="max-width: 700px;">
 				<h2>bbPress Post Toolbar</h2>
 				<?php _e('Plugin Version', 'bbp_5o1_toolbar'); ?> <?php echo bbp_5o1_toolbar::version(); ?><br />
 				<?php _e('If you enjoy this plugin, please consider making a <a href="http://master5o1.com/donate/">donation</a> to master5o1 as a token of thanks.', 'bbp_5o1_toolbar'); ?>
@@ -143,7 +152,7 @@ class bbp_5o1_toolbar {
 						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="1" <?php print (($custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
 						<label><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="0" <?php print ((!$custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
-						<div style="margin: 0 50px;"><small><?php _e('Note: It is recommended that the <code>/wp-content/plugins/bbpress-post-toolbar/smilies/</code> directory is copied or moved to the <code>/wp-content/</code> directory.  This is to prevent any custom smilies that you may have added from being lost on an upgrade to this plugin.', 'bbp_5o1_toolbar'); ?></small></div>
+						<div style="margin: 0 50px;"><small><?php printf( __('Note: It is recommended that the %s directory is copied or moved to the %s directory.  This is to prevent any custom smilies that you may have added from being lost on an upgrade to this plugin.', 'bbp_5o1_toolbar'), '<code>' . dirname(__FILE__) . '/smilies/</code>', '<code>' . WP_CONTENT_DIR . '/smilies/</code>'); ?></small></div>
 					</p>
 					<p>
 						<strong><?php _e('Allow embedding of Youtube videos?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
@@ -170,16 +179,41 @@ class bbp_5o1_toolbar {
 						</span><br />
 						<div style="margin: 0 50px;"><small><?php _e('Note: Allowing images in bbPress posts will also allow them in WordPress comments.  I will try to disable this when I have learnt a bit more about WordPress and bbPress.', 'bbp_5o1_toolbar'); ?></small></div>
 					</p>
+					<div style="margin: 0 0 0 10px; padding: 0 0 0 10px; border-left: solid 3px #eee;">
+						<p>
+							<strong><?php _e('Allow users to upload images?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+							<span style="margin: 0 50px;">
+							<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_allow_image_uploads" type="radio" value="1" <?php print (($image_uploads) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes (default)', 'bbp_5o1_toolbar'); ?></label>
+							<label><input name="bbp_5o1_toolbar_allow_image_uploads" type="radio" value="0" <?php print ((!$image_uploads) ? 
+	'checked="checked"' : '' ) ?> /> <?php _e('No', 'bbp_5o1_toolbar'); ?></label>
+							</span><br />
+							<div style="margin: 0 50px;">
+								<span><strong><?php _e('Upload Directory', 'bbp_5o1_toolbar'); ?>:</strong> <code><?php $directory = wp_upload_dir(); print $directory['path'].'/'; ?></code></span><br />
+								<small><?php _e('Note: This is only relevant if you allow images to be posted in the forum.', 'bbp_5o1_toolbar'); ?></small>
+							</div>
+						</p>
+						<div style="margin: 0 0 0 10px; padding: 0 0 0 10px; border-left: solid 3px #eee;">
+							<p>
+								<strong><?php _e('Allow unregistered users to upload images?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+								<span style="margin: 0 50px;">
+								<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="1" <?php print (($anonymous_image_uploads) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+								<label><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="0" <?php print ((!$anonymous_image_uploads) ? 
+		'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+								</span><br />
+								<div style="margin: 0 50px;"><small><?php _e('Note: This is only be relevant if you allow unregistered users to post replies in the forum, and allow images to be uploaded and posted in the forum.', 'bbp_5o1_toolbar'); ?></small></div>
+							</p>
+						</div>
+					</div>
 					<p>
-						<strong><?php _e('Allow unregistered users to upload images?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
-						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="1" <?php print (($anonymous_image_uploads) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
-						<label><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="0" <?php print ((!$anonymous_image_uploads) ? 
-'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
-						</span><br />
-						<div style="margin: 0 50px;"><small><?php _e('Note: This will only be relevant if you have allowed unregistered users to post replies in the forum.', 'bbp_5o1_toolbar'); ?></small></div>
-					</p>
-					<p>
+
+
+
+
+
+
+
+
+
 						<strong><?php _e('Link to master5o1&#39;s website in the About panel as a credit to the plugin developer?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
 						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_show_credit" type="radio" value="1" <?php print (($credit) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
@@ -218,47 +252,66 @@ class bbp_5o1_toolbar {
 	}
 	
 	function plugin_do_options() {
-		if ( is_admin() && current_user_can('manage_options') ) {
-			if (isset($_POST['bbpress-post-toolbar']) && $_POST['bbpress-post-toolbar'] == "bbpress-post-toolbar") {
-			
-				if ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 1)
-					update_option('bbp_5o1_toolbar_use_custom_smilies', true);
-				elseif ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 0)
-					update_option('bbp_5o1_toolbar_use_custom_smilies', false);
-					
-				if ($_POST['bbp_5o1_toolbar_use_youtube'] == 1)
-					update_option('bbp_5o1_toolbar_use_youtube', true);
-				elseif ($_POST['bbp_5o1_toolbar_use_youtube'] == 0)
-					update_option('bbp_5o1_toolbar_use_youtube', false);
-					
-				if ($_POST['bbp_5o1_toolbar_use_textalign'] == 1)
-					update_option('bbp_5o1_toolbar_use_textalign', true);
-				elseif ($_POST['bbp_5o1_toolbar_use_textalign'] == 0)
-					update_option('bbp_5o1_toolbar_use_textalign', false);
-					
-				if ($_POST['bbp_5o1_toolbar_use_images'] == 1)
-					update_option('bbp_5o1_toolbar_use_images', true);
-				elseif ($_POST['bbp_5o1_toolbar_use_images'] == 0)
-					update_option('bbp_5o1_toolbar_use_images', false);
-					
-				if ($_POST['bbp_5o1_toolbar_show_credit'] == 1)
-					update_option('bbp_5o1_toolbar_show_credit', true);
-				elseif ($_POST['bbp_5o1_toolbar_show_credit'] == 0)
-					update_option('bbp_5o1_toolbar_show_credit', false);
-				
-				update_option('bbp_5o1_toolbar_custom_help', $_POST['bbp_5o1_toolbar_custom_help']);
-				
-				if ($_POST['bbp_5o1_toolbar_manual_insertion'] == 1)
-					update_option('bbp_5o1_toolbar_manual_insertion', true);
-				elseif ($_POST['bbp_5o1_toolbar_manual_insertion'] == 0)
-					update_option('bbp_5o1_toolbar_manual_insertion', false);
+		if ( !is_admin() || !current_user_can('manage_options') )
+			return;
+		if (isset($_POST['bbpress-post-toolbar']) && $_POST['bbpress-post-toolbar'] == "bbpress-post-toolbar") {
+		
 
-				if ($_POST['bbp_5o1_toolbar_allow_anonymous_image_uploads'] == 1)
-					update_option('bbp_5o1_toolbar_allow_anonymous_image_uploads', true);
-				elseif ($_POST['bbp_5o1_toolbar_allow_anonymous_image_uploads'] == 0)
-					update_option('bbp_5o1_toolbar_allow_anonymous_image_uploads', false);					
+			if ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 1)
+				update_option('bbp_5o1_toolbar_use_custom_smilies', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 0)
+				update_option('bbp_5o1_toolbar_use_custom_smilies', false);
 				
-			}
+
+			if ($_POST['bbp_5o1_toolbar_use_youtube'] == 1)
+				update_option('bbp_5o1_toolbar_use_youtube', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_youtube'] == 0)
+				update_option('bbp_5o1_toolbar_use_youtube', false);
+				
+
+			if ($_POST['bbp_5o1_toolbar_use_textalign'] == 1)
+				update_option('bbp_5o1_toolbar_use_textalign', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_textalign'] == 0)
+				update_option('bbp_5o1_toolbar_use_textalign', false);
+
+
+
+
+
+
+
+
+
+
+				
+			if ($_POST['bbp_5o1_toolbar_use_images'] == 1)
+				update_option('bbp_5o1_toolbar_use_images', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_images'] == 0)
+				update_option('bbp_5o1_toolbar_use_images', false);
+				
+			if ($_POST['bbp_5o1_toolbar_show_credit'] == 1)
+				update_option('bbp_5o1_toolbar_show_credit', true);
+			elseif ($_POST['bbp_5o1_toolbar_show_credit'] == 0)
+				update_option('bbp_5o1_toolbar_show_credit', false);
+			
+			update_option('bbp_5o1_toolbar_custom_help', $_POST['bbp_5o1_toolbar_custom_help']);
+			
+			if ($_POST['bbp_5o1_toolbar_manual_insertion'] == 1)
+				update_option('bbp_5o1_toolbar_manual_insertion', true);
+			elseif ($_POST['bbp_5o1_toolbar_manual_insertion'] == 0)
+				update_option('bbp_5o1_toolbar_manual_insertion', false);
+
+			if ($_POST['bbp_5o1_toolbar_allow_anonymous_image_uploads'] == 1)
+				update_option('bbp_5o1_toolbar_allow_anonymous_image_uploads', true);
+			elseif ($_POST['bbp_5o1_toolbar_allow_anonymous_image_uploads'] == 0)
+				update_option('bbp_5o1_toolbar_allow_anonymous_image_uploads', false);	
+				
+			if ($_POST['bbp_5o1_toolbar_allow_image_uploads'] == 1)
+				update_option('bbp_5o1_toolbar_allow_image_uploads', true);
+			elseif ($_POST['bbp_5o1_toolbar_allow_image_uploads'] == 0)
+				update_option('bbp_5o1_toolbar_allow_image_uploads', false);				
+			
+
 		}
 	}
 	
@@ -287,11 +340,11 @@ class bbp_5o1_toolbar {
 	}
 
 	function switch_smileys_url($link, $img, $url) {
-		if ( file_exists(str_replace('plugins/bbpress-post-toolbar','smilies/package-config.php', dirname(__FILE__))) )
-			return $url . "/wp-content/smilies/" . $img;
+		if ( file_exists(WP_CONTENT_DIR . '/smilies/package-config.php') )
+			return content_url( '/smilies/' . $img );
 		elseif ( file_exists(dirname(__FILE__) . '/smilies/package-config.php') )
-			return $url . "/wp-content/plugins/bbpress-post-toolbar/smilies/" . $img;
-		return $link;
+			return plugins_url( '/smilies/' . $img, __FILE__ ); 
+		return $link;	
 	}
 
 	function switch_panel($panel) {
@@ -351,22 +404,22 @@ class bbp_5o1_toolbar {
 		global $wpsmiliestrans;
 		$items = array();
 		$items[] = array( 'action' => 'insert_data',
-						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/bold.png" title="Bold" alt="Bold" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/bold.png" title="Bold" alt="Bold" />',
 						 'data' => 'strong');
 		$items[] = array( 'action' => 'insert_data',
-						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/italic.png" title="Italics" alt="Italics" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/italic.png" title="Italics" alt="Italics" />',
 						 'data' => 'em');
 		$items[] = array( 'action' => 'insert_data',
-						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/underline.png" title="Underline" alt="Underline" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/underline.png" title="Underline" alt="Underline" />',
 						 'data' => 'underline');
 		$items[] = array( 'action' => 'insert_data',
-						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/strikethrough.png" title="Strike through" alt="Strike through" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/strikethrough.png" title="Strike through" alt="Strike through" />',
 						 'data' => 'strike');
 		$items[] = array( 'action' => 'switch_panel',
-						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/fontcolor.png" title="Color" alt="Color" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/fontcolor.png" title="Color" alt="Color" />',
 						 'data' => bbp_5o1_toolbar::switch_panel('color'));
 		$items[] = array( 'action' => 'switch_panel',
-						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/font.png" title="Size" alt="Size" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/font.png" title="Size" alt="Size" />',
 						 'data' => bbp_5o1_toolbar::switch_panel('size'));
 		if ( get_option( 'use_smilies' ) ) {
 			$items[] = array( 'action' => 'switch_panel',
@@ -374,36 +427,36 @@ class bbp_5o1_toolbar {
 							  'data' => bbp_5o1_toolbar::switch_panel('smiley'));
 		}
 		$items[] = array( 'action' => 'switch_panel',
-						 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/link.png" title="Link" alt="Link" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/link.png" title="Link" alt="Link" />',
 						 'data' => bbp_5o1_toolbar::switch_panel('link'));
 		if ( get_option('bbp_5o1_toolbar_use_images')) {
 			$items[] = array( 'action' => 'switch_panel',
-							 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/image.png" title="Image" alt="Image" />',
+							 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/image.png" title="Image" alt="Image" />',
 							 'data' => bbp_5o1_toolbar::switch_panel('image'));
 		}
 		if ( get_option('bbp_5o1_toolbar_use_youtube') ) {
 			$items[] = array( 'action' => 'switch_panel',
-							  'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/youtube.png" title="Youtube" alt="Youtube" />',
+							  'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/youtube.png" title="Youtube" alt="Youtube" />',
 							  'data' => bbp_5o1_toolbar::switch_panel('youtube'));
 		}
 		$items[] = array( 'action' => 'insert_data',
-						  'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/quote.png" title="Quote" alt="Quote" />',
+						  'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/quote.png" title="Quote" alt="Quote" />',
 						  'data' => 'blockquote');
 		$items[] = array( 'action' => 'insert_data',
-						  'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/code.png" title="Code" alt="Code" />',
+						  'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/code.png" title="Code" alt="Code" />',
 						  'data' => 'code');
 		if ( get_option('bbp_5o1_toolbar_use_textalign') ) {
 			$items[] = array( 'action' => 'insert_data',
-							 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/fontleft.png" title="Left Align" alt="Left Align" />',
+							 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/fontleft.png" title="Left Align" alt="Left Align" />',
 							 'data' => 'fontleft');
 			$items[] = array( 'action' => 'insert_data',
-							 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/fontcenter.png" title="Center Align" alt="Center Align" />',
+							 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/fontcenter.png" title="Center Align" alt="Center Align" />',
 							 'data' => 'fontcenter');
 			$items[] = array( 'action' => 'insert_data',
-							 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/fontjustify.png" title="Justified Align" alt="Justified Align" />',
+							 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/fontjustify.png" title="Justified Align" alt="Justified Align" />',
 							 'data' => 'fontjustify');
 			$items[] = array( 'action' => 'insert_data',
-							 'inside_anchor' => '<img src="'. site_url() . '/wp-content/plugins/bbpress-post-toolbar/images/fontright.png" title="Right Align" alt="Right Align" />',
+							 'inside_anchor' => '<img src="' . plugins_url( '/images', __FILE__ ) . '/fontright.png" title="Right Align" alt="Right Align" />',
 							 'data' => 'fontright');
 		}
 		// Allow for pluggable and extended items to be added:
@@ -433,7 +486,7 @@ class bbp_5o1_toolbar {
 			?><div id="post-toolbar-item-help" class="panel">
 				<h4 style="display: inline-block;">bbPress Post Toolbar <?php _e('Help', 'bbp_5o1_toolbar'); ?></h4><span style="line-height: 16px; margin: auto 5px;">&mdash; <a onclick="switch_panel('post-toolbar-item-about');" style="cursor: pointer;"><?php _e('About', 'bbp_5o1_toolbar'); ?></a></span>
 				<div>
-			<?php if ( !get_option('bbp_5o1_toolbar_custom_help') ) : ?>
+			<?php if ( ! get_option('bbp_5o1_toolbar_custom_help') ) : ?>
 				<p><?php _e("This toolbar allows simple click-to-add HTML elements.", 'bbp_5o1_toolbar'); ?></p>
 				<p><?php _e("For the options that are simple buttons (e.g. bold, italics), one can select text and then click the button to apply the tag around the selected text.", 'bbp_5o1_toolbar'); ?></p>
 				<p><?php _e("For the options at open panels (e.g. link), open the panel first, add the url to the text box (if link), then hit Apply Link.  If it's font sizing or colors, then select the text and click the size you want, e.g., xx-small.", 'bbp_5o1_toolbar'); ?></p>
@@ -479,20 +532,30 @@ class bbp_5o1_toolbar {
 		<?php
 	}
 
-	function post_form_toolbar_script() {
-		// Eventual goal is to change this to use wp_enqueue_scripts or what ever it is...later.
-		?>
-		<?php if ( get_option('bbp_5o1_toolbar_use_images') ) : ?>
-		<script type="text/javascript" src="<?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/fileuploader.js"></script>
-		<?php endif; ?>
-		<script type="text/javascript" src="<?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/toolbar.js"></script>
-		<style type="text/css">/*<![CDATA[*/
-			@import url( <?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/toolbar.css );
-			<?php if ( get_option('bbp_5o1_toolbar_use_images') ) : ?>
-			@import url( <?php print site_url(); ?>/wp-content/plugins/bbpress-post-toolbar/fileuploader.css );
-			<?php endif; ?>
-		/*]]>*/</style>
-		<?php
+	function script_and_style() {
+		wp_register_script( 'bbp_5o1_post_toolbar_uploader_script', plugins_url('fileuploader.js', __FILE__) );
+		wp_register_style( 'bbp_5o1_post_toolbar_uploader_style', plugins_url('fileuploader.css', __FILE__) );
+		wp_register_script( 'bbp_5o1_post_toolbar_script', plugins_url('toolbar.js', __FILE__) );
+		wp_register_style( 'bbp_5o1_post_toolbar_style', plugins_url('toolbar.css', __FILE__) );
+		
+
+
+
+
+
+		wp_enqueue_script( 'bbp_5o1_post_toolbar_script' );
+		wp_enqueue_style( 'bbp_5o1_post_toolbar_style' );
+		if ( ( get_option( 'bbp_5o1_toolbar_use_images' ) && get_option( 'bbp_5o1_toolbar_allow_image_uploads' ) ) && ( is_user_logged_in() || get_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' ) ) ) {
+			wp_enqueue_script( 'bbp_5o1_post_toolbar_uploader_script' );
+			wp_enqueue_style( 'bbp_5o1_post_toolbar_uploader_style' );
+		}
+
+
+
+
+
+
+
 	}
 	
 	function fileupload_trigger($vars) {
@@ -502,8 +565,8 @@ class bbp_5o1_toolbar {
 	
 	function fileupload_trigger_check() {
 		if ( intval(get_query_var('postform_fileupload')) == 1 ) {
-			if ( !is_user_logged_in() && !get_option('bbp_5o1_toolbar_allow_anonymous_image_uploads') ) {
-				echo htmlspecialchars(json_encode(array("error"=>__("User is not logged in.", 'bbp_5o1_toolbar'))), ENT_NOQUOTES);
+			if ( ! ( ( get_option( 'bbp_5o1_toolbar_use_images' ) && get_option( 'bbp_5o1_toolbar_allow_image_uploads' ) ) && ( is_user_logged_in() || get_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' ) ) ) ) {
+				echo htmlspecialchars(json_encode(array("error"=>__("You are not permitted to upload images.", 'bbp_5o1_toolbar'))), ENT_NOQUOTES);
 				exit;
 			}
 			require_once( dirname(__FILE__) . '/fileuploader.php' );
@@ -546,14 +609,14 @@ class bbp_5o1_toolbar {
 	}
 	
 	function fileupload_start() {
-		if ( !is_user_logged_in() && !get_option('bbp_5o1_toolbar_allow_anonymous_image_uploads') )
+		if ( ! ( ( get_option( 'bbp_5o1_toolbar_use_images' ) && get_option( 'bbp_5o1_toolbar_allow_image_uploads' ) ) && ( is_user_logged_in() || get_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' ) ) ) )
 			return;
 		?>
 		<script type="text/javascript">
 		function createUploader() {
 			var uploader = new qq.FileUploader({
 				element: document.getElementById('post-form-image-uploader'),
-				action: '<?php print site_url() . '/?postform_fileupload=1'; ?>',
+				action: '<?php print get_site_url() . '/?postform_fileupload=1'; ?>',
 				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],        
 				sizeLimit: 5*1024*1024, // max size   
 				onComplete: function(id, fileName, responseJSON){

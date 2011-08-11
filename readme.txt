@@ -64,6 +64,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Changelog ==
 
+= 0.5.1 =
+* Allowed image uploading to be optional, that is, while posting images is still allowable, uploading them is not.
+* Got around to enqueing the style and scripts (fileuploader.css/.js & toolbar.css/.js).
+* Fixed various URLs and directory paths to use WP's functions or constants (ie: content_url(), site_url(), plugins_url(), WP_CONTENT_DIR, etc).
+
 = 0.5.0 =
 
 * Added image uploading using Valums' [Ajax Upload](http://valums.com/ajax-upload/) script.
@@ -109,7 +114,7 @@ chart working.
 
 * First release.
 
-== Upgrade Notices ==
+== Upgrade Notice ==
 
 = 0.5.0 =
 This release brings in AJAX uploading of images to the Images panel.  I have used Valums' [Ajax Upload](http://valums.com/ajax-upload/) script; the default styling from his demo was retained while I familiarise myself with the script.  I intend to change the styling and visually integrate the script with the other parts of the panel.
@@ -122,16 +127,14 @@ You can actually ignore this update, it's just me getting some minor things done
 = 0.3.2 =
 Added translation .pot file so that people can have custom translations.
 
-== Other Notes ==
-
-= To Do =
+== To Do ==
 
 * Enqueue the JS and such so it is printed really only when it is needed.
 * Clean some things.
 * Other things that I can't figure out yet.
 * Relax and have a cup of hot chocolate.
 
-= Custom Buttons =
+== Custom Buttons ==
 
 The following is about standard push buttons, not panel opening buttons.  To see how a panel opening button works just view the bbpress-post-toolbar.php source.
 
