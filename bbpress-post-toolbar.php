@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.5.5
+ Version: 0.5.6
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -53,6 +53,7 @@ class bbp_5o1_toolbar {
 	}
 	
 	function plugin_activation() {
+		add_option( 'bbp_5o1_toolbar_first_activation', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_custom_smilies', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_textalign', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_show_credit', false, '', 'yes' );
@@ -63,6 +64,7 @@ class bbp_5o1_toolbar {
 	}
 	
 	function plugin_deactivation() {
+		delete_option( 'bbp_5o1_toolbar_first_activation' );
 		delete_option( 'bbp_5o1_toolbar_use_custom_smilies' );
 		delete_option( 'bbp_5o1_toolbar_use_textalign' );
 		delete_option( 'bbp_5o1_toolbar_show_credit' );
@@ -83,6 +85,25 @@ class bbp_5o1_toolbar {
 	function plugin_options_page() {
 		if (!current_user_can('manage_options'))  {
 			wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		
+		// Activate Formatting and Smilies as default toolbar items; only do it once.
+		if ( !get_option( 'bbp_5o1_toolbar_first_activation' ) ) {
+			activate_plugin( dirname(__FILE__) . '/toolbar-formatting.php' );
+			activate_plugin( dirname(__FILE__) . '/toolbar-smilies-panel.php' );
+			activate_plugin( dirname(__FILE__) . '/toolbar-video-panel.php' );
+			update_option( 'bbp_5o1_toolbar_first_activation', true );
+
+			// is_plugin_active( $plugin ) doesn't seem to be working in here (or something) so I'm assuming it all worked.
+			echo "<div id='message' class='updated'>";
+			echo "<h3>" . __('Default toolbar item set activated:', 'bbp_5o1_toolbar') . "</h3>";
+			echo "<ul style='list-style-type: square;margin-left: 15px;'>";
+			echo "<li>Toolbar Formatting</li>";
+			echo "<li>Toolbar Smilies Panel</li>";
+			echo "<li>Toolbar Video Panel</li>";
+			echo "</ul>";
+			echo "<p>" . __("You can deactivate these using the WordPress plugin management page.", 'bbp_5o1_toolbar') . "</p>";
+			echo "</div>";
 		}
 		
 		$custom_smilies = false;
@@ -129,9 +150,8 @@ class bbp_5o1_toolbar {
 					</p>
 					<p>
 						<strong><?php _e('Allow images to be posted?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
-						<div style="margin: 0 20px;font-size:1.1em;font-style: italic;"><?php _e('Activate the child-plugin "Toolbar Images Panel" to allow images to be posted and uploaded.', 'bbp_5o1_toolbar'); ?></div>
+						<div style="margin: 0 20px;font-size:1.1em;font-style: italic;"><?php _e('Make sure that the included plugin "Toolbar Images Panel" is activated to allow images to be posted and uploaded.', 'bbp_5o1_toolbar'); ?></div>
 					</p>
-					<!-- -->
 					<div style="margin: 0 0 0 10px; padding: 0 0 0 10px; border-left: solid 3px #eee;">
 						<p>
 							<strong><?php _e('Allow users to upload images?', 'bbp_5o1_toolbar'); ?></strong><br /><br />

@@ -3,9 +3,24 @@
  Plugin Name: Toolbar Smilies Panel
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: Providing the custom smilies panel and smilies handling for bbPress Post Toolbar
- Version: 0.5.5
+ Version: 0.5.6
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
+*/
+/*  Copyright 2011  Jason Schwarzenberger  (email : jason@master5o1.com)
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License, version 2, as 
+    published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // Add panel entry to toolbar:
