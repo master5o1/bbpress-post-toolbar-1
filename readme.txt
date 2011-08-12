@@ -19,6 +19,7 @@ Post toolbar for bbPress 2.0.
 * Embeds online videos from multiple providers (Youtube, Dailymotion, Vimeo, Metacafe) using [video]http://...[video]
 * Also provides a [youtube]http://...[/youtube] shortcode.
 * Toolbar items all pluggable, defaults can be turned off and replaced by custom ones.
+* Default item set is formatting, smilies, and videos.
 
 I would like to use my [website](http://master5o1.com/) for more direct 
 support, feedback, bug reports and feature requests.  Any donations will 
@@ -40,6 +41,12 @@ If you choose to set the bar to manual insertion rather than automatic, then you
 It is a good idea to copy or move the smilies directory included with this plugin to the wp-content directory.
 
 == Frequently Asked Questions ==
+
+= Why is the toolbar blank? =
+
+The toolbar is blank probably because you don't have any toolbar plugins activated.  The included set are Toolbar Formatting, Toolbar Images Panel, Toolbar Smilies Panel and Toolbar Video Panel.
+
+0.5.6 address this issue (sort of) by attempting to load a default set of buttons by activating the Toolbar Formatting, Toolbar Smilies Panel and Toolbar Video Panel on activation of the post toolbar plugin.
 
 = Can images be set a maximum width? =
 
@@ -63,6 +70,10 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 1. Toolbar options in WP Admin.
 
 == Changelog ==
+
+= 0.5.6 =
+* When going to the options page for the first time, the default set of toolbar items will be activated.
+* Activated items are: Toolbar Formatting, Toolbar Smilies Panel, Toolbar Video Panel.
 
 = 0.5.5 =
 * Extracted the buttons and panels into four sub-plugins: video, smilies, formatting & images.
@@ -122,6 +133,9 @@ chart working.
 * First release.
 
 == Upgrade Notice ==
+
+= 0.5.6 =
+You may want to manually deactivate and activate the plugin (and perhaps sub-plugins).
 
 = 0.5.5 =
 This release changes a lot: You will need to activate at least one of the sub-plugins to see the buttons.  I suggest at the minimum the formatting one.
