@@ -1,27 +1,4 @@
 <?php
-/**
- Plugin Name: Toolbar Images Panel
- Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
- Description: Allows images to be posted and uploaded into bbPress + WordPress.
- Version: 0.5.6
- Author: Jason Schwarzenberger
- Author URI: http://master5o1.com/
-*/
-/*  Copyright 2011  Jason Schwarzenberger  (email : jason@master5o1.com)
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
-    published by the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
 
 // Add panel entry to toolbar:
 add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_images_panel', 'panel_entry'), 1 );
@@ -78,7 +55,7 @@ class bbp_5o1_images_panel {
 			$sizeLimit = 5 * 1024 * 1024;
 			$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
 			$directory = wp_upload_dir();
-			$result = $uploader->handleUpload( $directory['path'].'/' );
+			$result = $uploader->handleUpload( $directory['path'] );
 			$mime = exif_imagetype($result['file']);
 			if ( !$mime || ! in_array($mime, $allowedMimes) ) {
 				$deleted = unlink($result['file']);

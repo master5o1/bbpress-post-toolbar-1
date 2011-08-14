@@ -42,12 +42,6 @@ It is a good idea to copy or move the smilies directory included with this plugi
 
 == Frequently Asked Questions ==
 
-= Why is the toolbar blank? =
-
-The toolbar is blank probably because you don't have any toolbar plugins activated.  The included set are Toolbar Formatting, Toolbar Images Panel, Toolbar Smilies Panel and Toolbar Video Panel.
-
-0.5.6 address this issue (sort of) by attempting to load a default set of buttons by activating the Toolbar Formatting, Toolbar Smilies Panel and Toolbar Video Panel on activation of the post toolbar plugin.
-
 = Can images be set a maximum width? =
 
 Easily.  In fact, I found that bbPress already does this in its default theme (and thus compatability theming will also).  Try putting the following into your theme's css:
@@ -71,11 +65,17 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Changelog ==
 
+= 0.5.7 =
+* Reverted back to option-checks rather than included 'child' plugins.
+* Minor restyle of the options page.
+
 = 0.5.6 =
+
 * When going to the options page for the first time, the default set of toolbar items will be activated.
 * Activated items are: Toolbar Formatting, Toolbar Smilies Panel, Toolbar Video Panel.
 
 = 0.5.5 =
+
 * Extracted the buttons and panels into four sub-plugins: video, smilies, formatting & images.
 * Above allowed for ordering of the buttons (by those categories); default ordering is formatting, images, video, smilies.
 * Added [video][/video] shortcode to replace the [youtube] one.  This is because I added more providers.
@@ -83,6 +83,7 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 * Removed the allow images option because it is implied when the images sub-plugin is activated.
 
 = 0.5.1 =
+
 * Allowed image uploading to be optional, that is, while posting images is still allowable, uploading them is not.
 * Got around to enqueing the style and scripts (fileuploader.css/.js & toolbar.css/.js).
 * Fixed various URLs and directory paths to use WP's functions or constants (ie: content_url(), site_url(), plugins_url(), WP_CONTENT_DIR, etc).

@@ -2,8 +2,8 @@
 /**
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
- Description: Post toolbar for click-to-insert HTML elements, as well as [youtube][/youtube] shortcode handling.
- Version: 0.5.6
+ Description: A toolbar for bbPress that can be extended by other plugins.
+ Version: 0.5.7
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -38,6 +38,16 @@ if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'bbp_post_toolbar_insertion', array('bbp_5o1_toolbar','post_form_toolbar_bar') );
 
+// Components:
+if ( get_option( 'bbp_5o1_toolbar_use_youtube' ) )
+	require_once( dirname(__FILE__) . '/toolbar-video-panel.php' );
+if ( get_option( 'bbp_5o1_toolbar_use_smilies' ) )
+	require_once( dirname(__FILE__) . '/toolbar-smilies-panel.php' );
+if ( get_option( 'bbp_5o1_toolbar_use_images' ) )
+	require_once( dirname(__FILE__) . '/toolbar-images-panel.php' );
+if ( get_option( 'bbp_5o1_toolbar_use_formatting' ) )
+	require_once( dirname(__FILE__) . '/toolbar-formatting.php' );
+
 // Plugin Activation/Deactivation Hooks:	
 register_activation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_activation') );
 register_deactivation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_deactivation') );
@@ -53,7 +63,13 @@ class bbp_5o1_toolbar {
 	}
 	
 	function plugin_activation() {
-		add_option( 'bbp_5o1_toolbar_first_activation', false, '', 'yes' );
+		// Components:
+		add_option( 'bbp_5o1_toolbar_use_youtube', true, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_use_formatting', true, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_use_smilies', true, '', 'yes' );
+		add_option( 'bbp_5o1_toolbar_use_images', false, '', 'yes' );
+		
+		
 		add_option( 'bbp_5o1_toolbar_use_custom_smilies', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_textalign', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_show_credit', false, '', 'yes' );
@@ -64,7 +80,11 @@ class bbp_5o1_toolbar {
 	}
 	
 	function plugin_deactivation() {
-		delete_option( 'bbp_5o1_toolbar_first_activation' );
+		delete_option( 'bbp_5o1_toolbar_use_youtube' );
+		delete_option( 'bbp_5o1_toolbar_use_formatting' );
+		delete_option( 'bbp_5o1_toolbar_use_smilies' );
+		delete_option( 'bbp_5o1_toolbar_use_images' );
+		
 		delete_option( 'bbp_5o1_toolbar_use_custom_smilies' );
 		delete_option( 'bbp_5o1_toolbar_use_textalign' );
 		delete_option( 'bbp_5o1_toolbar_show_credit' );
@@ -87,24 +107,20 @@ class bbp_5o1_toolbar {
 			wp_die( __('You do not have sufficient permissions to access this page.') );
 		}
 		
-		// Activate Formatting and Smilies as default toolbar items; only do it once.
-		if ( !get_option( 'bbp_5o1_toolbar_first_activation' ) ) {
-			activate_plugin( dirname(__FILE__) . '/toolbar-formatting.php' );
-			activate_plugin( dirname(__FILE__) . '/toolbar-smilies-panel.php' );
-			activate_plugin( dirname(__FILE__) . '/toolbar-video-panel.php' );
-			update_option( 'bbp_5o1_toolbar_first_activation', true );
-
-			// is_plugin_active( $plugin ) doesn't seem to be working in here (or something) so I'm assuming it all worked.
-			echo "<div id='message' class='updated'>";
-			echo "<h3>" . __('Default toolbar item set activated:', 'bbp_5o1_toolbar') . "</h3>";
-			echo "<ul style='list-style-type: square;margin-left: 15px;'>";
-			echo "<li>Toolbar Formatting</li>";
-			echo "<li>Toolbar Smilies Panel</li>";
-			echo "<li>Toolbar Video Panel</li>";
-			echo "</ul>";
-			echo "<p>" . __("You can deactivate these using the WordPress plugin management page.", 'bbp_5o1_toolbar') . "</p>";
-			echo "</div>";
-		}
+		// Components:
+		$use_youtube = false;
+		if ( get_option( 'bbp_5o1_toolbar_use_youtube' ) )
+			$use_youtube = true;
+		$use_smilies = false;
+		if ( get_option( 'bbp_5o1_toolbar_use_smilies' ) )
+			$use_smilies = true;
+		$use_formatting = false;
+		if ( get_option( 'bbp_5o1_toolbar_use_formatting' ) )
+			$use_formatting = true;
+		$use_images = false;
+		if ( get_option( 'bbp_5o1_toolbar_use_images' ) )
+			$use_images = true;
+		
 		
 		$custom_smilies = false;
 		if ( get_option('bbp_5o1_toolbar_use_custom_smilies') )
@@ -133,39 +149,74 @@ class bbp_5o1_toolbar {
 				<h3><?php _e('Options', 'bbp_5o1_toolbar'); ?></h3>
 				<form method="post" action="">
 					<p>
-						<strong><?php _e('Use customised smilies?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+						<strong><?php _e('Show video panel?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="1" <?php print (($custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
-						<label><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="0" <?php print ((!$custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
-						</span><br />
-						<div style="margin: 0 50px;"><small><?php printf( __('Note: It is recommended that the %s directory is copied or moved to the %s directory.  This is to prevent any custom smilies that you may have added from being lost on an upgrade to this plugin.', 'bbp_5o1_toolbar'), '<code>' . dirname(__FILE__) . '/smilies/</code>', '<code>' . WP_CONTENT_DIR . '/smilies/</code>'); ?></small></div>
-					</p>
-					<p>
-						<strong><?php _e('Allow text-alignment buttons?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
-						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="1" <?php print (($textalign) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
-						<label><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="0" <?php print ((!$textalign) ? 
-'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="1" <?php print (($use_youtube) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes (default)', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_use_youtube" type="radio" value="0" <?php print ((!$use_youtube) ? 'checked="checked"' : '' ) ?> /> <?php _e('No', 'bbp_5o1_toolbar'); ?></label>
 						</span>
 					</p>
 					<p>
-						<strong><?php _e('Allow images to be posted?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
-						<div style="margin: 0 20px;font-size:1.1em;font-style: italic;"><?php _e('Make sure that the included plugin "Toolbar Images Panel" is activated to allow images to be posted and uploaded.', 'bbp_5o1_toolbar'); ?></div>
+						<strong><?php _e('Show smilies panel?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_smilies" type="radio" value="1" <?php print (($use_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes (default)', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_use_smilies" type="radio" value="0" <?php print ((!$use_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('No', 'bbp_5o1_toolbar'); ?></label>
+						</span>
 					</p>
-					<div style="margin: 0 0 0 10px; padding: 0 0 0 10px; border-left: solid 3px #eee;">
+					<?php if ( $use_smilies ) : ?>
+					<div style="margin: 0 0 10px 51px; padding: 0 10px 10px 10px; border: solid 10px #eee; border-top: solid 1px #eee; border-right: solid 1px #eee;">
+						<p>
+							<strong><?php _e('Use customised smilies?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+							<span style="margin: 0 50px;">
+							<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="1" <?php print (($custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+							<label><input name="bbp_5o1_toolbar_use_custom_smilies" type="radio" value="0" <?php print ((!$custom_smilies) ? 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+							</span><br />
+							<div style="margin: 0 50px;"><small><?php printf( __('Note: It is recommended that the %s directory is copied or moved to the %s directory.  This is to prevent any custom smilies that you may have added from being lost on an upgrade to this plugin.', 'bbp_5o1_toolbar'), '<code><small>' . dirname(__FILE__) . '/smilies/</small></code>', '<code><small>' . WP_CONTENT_DIR . '/smilies/</small></code>'); ?></small></div>
+						</p>
+					</div>
+					<?php endif; ?>
+					<p>
+						<strong><?php _e('Show formatting buttons?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_formatting" type="radio" value="1" <?php print (($use_formatting) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes (default)', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_use_formatting" type="radio" value="0" <?php print ((!$use_formatting) ? 
+'checked="checked"' : '' ) ?> /> <?php _e('No', 'bbp_5o1_toolbar'); ?></label>
+						</span>
+					</p>
+					<?php if ( $use_formatting ) : ?>
+					<div style="margin: 0 0 10px 51px; padding: 0 10px 10px 10px; border: solid 10px #eee; border-top: solid 1px #eee; border-right: solid 1px #eee;">
+						<p>
+							<strong><?php _e('Allow text-alignment buttons?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+							<span style="margin: 0 50px;">
+							<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="1" <?php print (($textalign) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+							<label><input name="bbp_5o1_toolbar_use_textalign" type="radio" value="0" <?php print ((!$textalign) ? 
+	'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+							</span>
+						</p>
+					</div>
+					<?php endif; ?>
+					<p>
+						<strong><?php _e('Allow images to be posted?', 'bbp_5o1_toolbar'); ?></strong><br /><br />	
+						<span style="margin: 0 50px;">
+							<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_use_images" type="radio" value="1" <?php print (($use_images) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+							<label><input name="bbp_5o1_toolbar_use_images" type="radio" value="0" <?php print ((!$use_images) ? 
+	'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+						</span>
+					</p>
+					<?php if ( $use_images ) : ?>
+					<div style="margin: 0 0 10px 51px; padding: 0 10px 10px 10px; border: solid 10px #eee; border-top: solid 1px #eee; border-right: solid 1px #eee;">
 						<p>
 							<strong><?php _e('Allow users to upload images?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 							<span style="margin: 0 50px;">
-							<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_allow_image_uploads" type="radio" value="1" <?php print (($image_uploads) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes (default)', 'bbp_5o1_toolbar'); ?></label>
+							<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_allow_image_uploads" type="radio" value="1" <?php print (($image_uploads) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
 							<label><input name="bbp_5o1_toolbar_allow_image_uploads" type="radio" value="0" <?php print ((!$image_uploads) ? 
-	'checked="checked"' : '' ) ?> /> <?php _e('No', 'bbp_5o1_toolbar'); ?></label>
+	'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 							</span><br />
 							<div style="margin: 0 50px;">
-								<span><strong><?php _e('Upload Directory', 'bbp_5o1_toolbar'); ?>:</strong> <code><?php $directory = wp_upload_dir(); print $directory['path'].'/'; ?></code></span><br />
-								<small><?php _e('Note: This is only relevant if you allow images to be posted in the forum.', 'bbp_5o1_toolbar'); ?></small>
+								<span><small><?php _e('Upload Directory', 'bbp_5o1_toolbar'); ?>: </small><code><small><?php $directory = wp_upload_dir(); print $directory['path'].'/'; ?></small></code></span><br />
 							</div>
 						</p>
-						<div style="margin: 0 0 0 10px; padding: 0 0 0 10px; border-left: solid 3px #eee;">
+						<?php if ( $image_uploads ) : ?>
+						<div style="margin: 0 0 10px 51px; padding: 0 10px 10px 10px; border: solid 10px #eee; border-top: solid 1px #eee; border-right: solid 1px #eee;">
 							<p>
 								<strong><?php _e('Allow unregistered users to upload images?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
 								<span style="margin: 0 50px;">
@@ -173,22 +224,11 @@ class bbp_5o1_toolbar {
 								<label><input name="bbp_5o1_toolbar_allow_anonymous_image_uploads" type="radio" value="0" <?php print ((!$anonymous_image_uploads) ? 
 		'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 								</span><br />
-								<div style="margin: 0 50px;"><small><?php _e('Note: This is only be relevant if you allow unregistered users to post replies in the forum, and allow images to be uploaded and posted in the forum.', 'bbp_5o1_toolbar'); ?></small></div>
 							</p>
 						</div>
+						<?php endif; ?>
 					</div>
-					<p>
-						<strong><?php _e('Link to master5o1&#39;s website in the About panel as a credit to the plugin developer?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
-						<span style="margin: 0 50px;">
-						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_show_credit" type="radio" value="1" <?php print (($credit) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
-						<label><input name="bbp_5o1_toolbar_show_credit" type="radio" value="0" <?php print ((!$credit) ? 
-'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
-						</span><br />
-						<div style="margin: 0 50px;">
-							<span><strong><?php _e('Example', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), '<a href="http://master5o1.com/" title="master5o1&#39;s website">master5o1</a>' ); ?></span><br />
-							<span><strong><?php _e('Default', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), 'master5o1' ); ?></span>
-						</div>
-					</p>
+					<?php endif; ?>
 					<p>
 						<strong><?php _e('Customised help panel message.'); ?></strong></br /><br />
 						<textarea name="bbp_5o1_toolbar_custom_help" style="margin: 0 50px; min-height: 100px; min-width: 400px;"><?php echo get_option('bbp_5o1_toolbar_custom_help'); ?></textarea>
@@ -204,7 +244,19 @@ class bbp_5o1_toolbar {
 'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
 						</span><br />
 						<div style="margin: 0 50px;"><small><?php _e("Note: Manual bar insertion requires that you use <code>&lt;?php do_action( 'bbp_post_toolbar_insertion' ); ?&gt;</code> in your theme files, or wherever you desire the bar to appear.", 'bbp_5o1_toolbar'); ?></small></div>
-					</p>					
+					</p>
+					<p>
+						<strong><?php _e('Link to master5o1&#39;s website in the About panel as a credit to the plugin developer?', 'bbp_5o1_toolbar'); ?></strong><br /><br />
+						<span style="margin: 0 50px;">
+						<label style="display: inline-block; width: 150px;"><input name="bbp_5o1_toolbar_show_credit" type="radio" value="1" <?php print (($credit) ? 'checked="checked"' : '' ) ?> /> <?php _e('Yes', 'bbp_5o1_toolbar'); ?></label>
+						<label><input name="bbp_5o1_toolbar_show_credit" type="radio" value="0" <?php print ((!$credit) ? 
+'checked="checked"' : '' ) ?> /> <?php _e('No (default)', 'bbp_5o1_toolbar'); ?></label>
+						</span><br />
+						<div style="margin: 0 50px;">
+							<span><small><strong><?php _e('Example', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), '<a href="http://master5o1.com/" title="master5o1&#39;s website">master5o1</a>' ); ?></small></span><br />
+							<span><small><strong><?php _e('Default', 'bbp_5o1_toolbar'); ?>:</strong> <?php printf( __('Version %s by %s.', 'bbp_5o1_toolbar'), bbp_5o1_toolbar::version(), 'master5o1' ); ?></small></span>
+						</div>
+					</p>
 					<input type="hidden" name="bbpress-post-toolbar" value="bbpress-post-toolbar" />
 					<input type="submit" value="Submit" />
 				</form>
@@ -218,7 +270,28 @@ class bbp_5o1_toolbar {
 			return;
 		if (isset($_POST['bbpress-post-toolbar']) && $_POST['bbpress-post-toolbar'] == "bbpress-post-toolbar") {
 
-			// Leaving this in toolbar's options instead of sub-plugin because it's easier :P
+			// Components:
+			if ($_POST['bbp_5o1_toolbar_use_youtube'] == 1)
+				update_option('bbp_5o1_toolbar_use_youtube', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_youtube'] == 0)
+				update_option('bbp_5o1_toolbar_use_youtube', false);
+				
+			if ($_POST['bbp_5o1_toolbar_use_formatting'] == 1)
+				update_option('bbp_5o1_toolbar_use_formatting', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_formatting'] == 0)
+				update_option('bbp_5o1_toolbar_use_formatting', false);
+			
+			if ($_POST['bbp_5o1_toolbar_use_images'] == 1)
+				update_option('bbp_5o1_toolbar_use_images', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_images'] == 0)
+				update_option('bbp_5o1_toolbar_use_images', false);
+			
+			if ($_POST['bbp_5o1_toolbar_use_smilies'] == 1)
+				update_option('bbp_5o1_toolbar_use_smilies', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_smilies'] == 0)
+				update_option('bbp_5o1_toolbar_use_smilies', false);
+		
+		
 			if ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 1)
 				update_option('bbp_5o1_toolbar_use_custom_smilies', true);
 			elseif ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 0)

@@ -1,27 +1,4 @@
 <?php
-/**
- Plugin Name: Toolbar Video Panel
- Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
- Description: Providing the Online Video panel for bbPress Post Toolbar.  Handles [youtube] and [video] shortcodes.
- Version: 0.5.6
- Author: Jason Schwarzenberger
- Author URI: http://master5o1.com/
-*/
-/*  Copyright 2011  Jason Schwarzenberger  (email : jason@master5o1.com)
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
-    published by the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
 
 // Add panel entry to toolbar:
 add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_video_panel', 'panel_entry'), 2 );
@@ -32,10 +9,6 @@ add_filter( 'bbp_get_reply_content', array('bbp_5o1_video_panel', 'add_video_sho
 // Add shortcodes to WordPress pages/posts/etc:
 add_shortcode( 'youtube', array('bbp_5o1_video_panel', 'youtube') ); // Keep the [youtube] shortcode for backwards-compat, and because why not?
 add_shortcode( 'video', array ( 'bbp_5o1_video_panel', 'video_shortcode' ) );
-
-// // Plugin Activation/Deactivation Hooks:	
-// register_activation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_activation') );
-// register_deactivation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_deactivation') );
 
 class bbp_5o1_video_panel {
 
@@ -142,12 +115,6 @@ HTML;
 		return bbp_5o1_video_panel::embed_flash( "http://www.metacafe.com/fplayer/${video_code[2]}/what_if.swf", "playerVars=showStats=yes|autoPlay=no" );
 	}
 	
-}	
-	
-	
-	
-	
-	
-	
-	
-	
+}
+
+?>
