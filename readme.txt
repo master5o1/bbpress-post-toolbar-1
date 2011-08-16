@@ -4,7 +4,7 @@ Donate link: http://master5o1.com/donate/
 Tags: bbPress, bbPress 2.0, toolbar, youtube, images, smilies, smileys, emoticons, 5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2.1
-Stable tag: 0.5.7
+Stable tag: 0.5.8
 
 Post toolbar for bbPress 2.0.
 
@@ -64,6 +64,12 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 1. Toolbar options in WP Admin.
 
 == Changelog ==
+
+= 0.5.8 =
+* Wow, my testing sux, obviously.  Oh well.
+* Fixed a bug where the image was being uploaded to ./2011/08imagename.jpg instead of ./2011/08/imagename.jpg.
+* Also made the unique filename be a counter of how many occurances of that filename is in the folder: image.jpg exists so named image-1.jpg, image-2.jpg, etc.  Much like WP does usually for it's stuff.
+* Cudos to mvaginger for [bringing this bug to my attention](http://wordpress.org/support/topic/i-am-sorry-but-still-buggy).
 
 = 0.5.7 =
 * Reverted back to option-checks rather than included 'child' plugins.
