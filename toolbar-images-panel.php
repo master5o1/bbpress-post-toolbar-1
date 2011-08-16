@@ -55,7 +55,7 @@ class bbp_5o1_images_panel {
 			$sizeLimit = 5 * 1024 * 1024;
 			$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
 			$directory = wp_upload_dir();
-			$result = $uploader->handleUpload( $directory['path'] );
+			$result = $uploader->handleUpload( trailingslashit( $directory['path'] ) );
 			$mime = exif_imagetype($result['file']);
 			if ( !$mime || ! in_array($mime, $allowedMimes) ) {
 				$deleted = unlink($result['file']);
@@ -65,7 +65,7 @@ class bbp_5o1_images_panel {
 			// Construct the attachment array
 			$attachment = array(
 				'post_mime_type' => $mime ? image_type_to_mime_type($mime) : '',
-				'guid' => $directory['url'] . '/' . $result['filename'],
+				'guid' => trailingslashit( $directory['url'] ) . $result['filename'],
 				'post_parent' => 0,
 				'post_title' => $result['name'],
 				'post_content' => 'Image uploaded for a forum topic or reply.',

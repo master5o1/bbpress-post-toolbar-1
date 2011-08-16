@@ -134,21 +134,22 @@ class qqFileUploader {
             return array('error' => 'File has an invalid extension, it should be one of '. $these . '.');
         }
         
+        $unique = '';
+        $counter = 0;
         if(!$replaceOldFile){
             /// don't overwrite previous files that were uploaded
-            while (file_exists($uploadDirectory . $filename . '.' . $ext)) {
-				$filename .= '-';
-                $filename .= rand(0, 999);
+            while (file_exists($uploadDirectory . $filename . $unique . '.' . $ext)) {
+                $unique = '-' . ++$counter;
             }
         }
         
-        if ($this->file->save($uploadDirectory . $filename . '.' . $ext)){
-            return array('success'=>true, 
-						 'file' => $uploadDirectory . $filename . '.' . $ext,
-						 'size' => $this->file->getSize(),
-						 'name' => $this->file->getName(),
-						 'filename' => $filename . '.' . $ext
-						);
+        if ($this->file->save($uploadDirectory . $filename . $unique . '.' . $ext)){
+            return array( 'success'=>true, 
+                          'file' => $uploadDirectory . $filename . $unique . '.' . $ext,
+                          'size' => $this->file->getSize(),
+                          'name' => $this->file->getName(),
+                          'filename' => $filename . $unique . '.' . $ext
+                        );
         } else {
             return array('error'=> 'Could not save uploaded file.' .
                 'The upload was cancelled, or server error encountered');
