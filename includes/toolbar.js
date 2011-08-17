@@ -1,10 +1,5 @@
 /**
  * Plugin Name: bbPress Post Toolbar
- * Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
- * Description: Post toolbar for click-to-insert HTML.
- * Version: 0.2
- * Author: master5o1
- * Author URI: http://master5o1.com
  */
 /*  Copyright 2011  Jason Schwarzenberger  (email : jason@master5o1.com)
 
@@ -25,10 +20,29 @@
 var post_form = document.getElementById('bbp_reply_content');
 if (post_form==null) post_form = document.getElementById('bbp_topic_content');
 var toolbar_active_panel = "";
+var post_toolbar_element_stack = new Array();
+var post_toolbar_attribute_stack = new Array();
+var post_toolbar_button_stack = new Array();
+var post_toolbar_clicked_button = null;
+
+function addCloseTagsToSubmit() {
+	var submitButton = document.getElementById('bbp_reply_submit');
+	if (submitButton==null) submitButton = document.getElementById('bbp_topic_submit');
+	if (submitButton==null) return;
+	onclick = submitButton.getAttribute('onclick');
+	if (onclick == null) { onclick = ''; }
+	onclick = 'closeTags(post_toolbar_element_stack);' + onclick;
+	submitButton.setAttribute('onclick', onclick);
+}
+
+function get_post_form() {
+	var post_form = document.getElementById('bbp_reply_content');
+	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	return post_form;
+}
 
 function switch_panel(panel) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	var post_form = get_post_form();
 	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; }
 	if (toolbar_active_panel == panel) {
 		document.getElementById(toolbar_active_panel).style.display='none';
@@ -40,8 +54,7 @@ function switch_panel(panel) {
 }
 
 function insert_panel(tag) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	var post_form = get_post_form();
 	if (tag == 'link') {
 		link_name = document.getElementById('link_name');
 		link_url = document.getElementById('link_url');
@@ -72,11 +85,10 @@ function insert_panel(tag) {
 }
 
 function insert_data(tag) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	var post_form = get_post_form();
 	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
 	if (tag == 'underline') {
-		testText('<span style="text-decoration: underline;">','</span>');	
+		testText('<span style="text-decoration: underline;">','</span>');
 		return;
 	} else if (tag == 'fontleft') {
 		testText('<span style="text-align: left;">','</span>');	
@@ -98,56 +110,136 @@ function insert_data(tag) {
 }
 
 function insert_shortcode(tag) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	var post_form = get_post_form();
 	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
 	testText('[' + tag + ']','[/' + tag + ']');
 }
 
 function insert_smiley(smiley) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	var post_form = get_post_form();
 	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
 	post_form.value += ' ' + smiley + ' ';
 }
 
-function insert_color(color) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
-	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
-	testText('<span style="color: ' + color + ';">','</span>');
-}
-
 function insert_size(size) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	var post_form = get_post_form();
 	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
-	testText('<span style="font-size: ' + size + ';">','</span>');
+	insert_tag('<span style="font-size: ' + size + ';">','</span>');
 }
 
-function testText(tag_s, tag_e) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+function testTest(tag_s, tag_e) {
+	insert_tag(tag_s, tag_e);
+}
+
+/////////////////////////////////////////////////////////////////////
+// I'm trying to clean this up by making 'better' functions below: //
+/////////////////////////////////////////////////////////////////////
+
+function insert_tag(tag_s, tag_e) {
+	var post_form = get_post_form();
 	if (!formatText(tag_s,tag_e)) {
 		post_form.value += tag_s + ' ' + tag_e;
 	}
 }
 
-function do_button(args, f) {
-	if (args.action == 'switch_panel')
-		switch_panel(args.panel);
+function insert_font(font) {
+	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
+	insert_tag('<span style="font-family: ' + font + ';">','</span>');
+}
+
+function insert_color(color) {
+	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
+	insert_tag('<span style="color: ' + color + ';">','</span>');
+}
+
+function do_button(button_e, args, f) {
+	post_toolbar_clicked_button = button_e;
+	if (args.action == 'switch_panel') {
+		var tagComplete = formatText('','');
+		if (tagComplete && f() == 'links') {
+			href = prompt('Link URL:', '');
+			if (href != null && href != '')
+				insertHTML(post_toolbar_element_stack, 'a', [['href',href]]);
+		} else {
+			switch_panel(args.panel);
+		}
+	}
 	if (args.action == 'insert_data')
 		insert_data(f());
 	if (args.action == 'insert_shortcode')
 		insert_shortcode(f());
 	if (args.action == 'api_item')
+		f(post_toolbar_element_stack);
+	if (args.action == 'api_panel')
 		f();
 	
 }
 
+function insertHTML(stack, tag, attributes) {
+	insertTag(stack,  '<', '>', tag, attributes);
+}
+
+function insertShortcode(stack, tag, attributes) {
+	insertTag(stack, '[', ']', tag, attributes);
+}
+
+function insertTag(stack, start, end, tag, attributes) {
+	var post_form = get_post_form();
+	stack_atts = post_toolbar_attribute_stack;
+	atts = '';
+	for (i=0; i<attributes.length; i++) {
+		atts += ' '+attributes[i][0]+'="'+attributes[i][1]+'"';
+	}
+	last_element = stack.pop();
+	if (typeof last_element != 'undefined') {
+		if (last_element == start+'/'+tag+end) {
+			last_attribute = stack_atts.pop();
+			if (typeof last_attribute != 'undefined') {
+				if (last_attribute == atts) {
+					post_form.value += last_element+' ';
+					highlightCloseButton();
+					return;
+				} else {
+					stack_atts.push(last_element);
+					stack.push(last_element);
+				}
+			}
+		} else {
+			stack.push(last_element);
+		}
+	}
+	var tagComplete = formatText(start+tag+atts+end,start+'/'+tag+end);
+	if (!tagComplete) {
+		post_form.value += ' '+start+tag+atts+end;
+		stack.push(start+'/'+tag+end);
+		stack_atts.push(atts);
+		highlightOpenButton();
+	}
+}
+
+function closeTags(stack) {
+	var post_form = get_post_form();
+	while(stack.length > 0) {
+		post_form.value += stack.pop()+' ';
+		post_toolbar_attribute_stack.pop();
+		highlightCloseButton();
+	}
+	post_form.value += " ";
+}
+
+function highlightCloseButton() {
+	var element = post_toolbar_button_stack.pop();
+	if (element.innerHTML.substring(0,12) == '<sup>/</sup>')
+		element.innerHTML = element.innerHTML.substring(12);
+}
+
+function highlightOpenButton() {
+	post_toolbar_button_stack.push(post_toolbar_clicked_button);
+	post_toolbar_clicked_button.innerHTML = '<sup>/</sup>' + post_toolbar_clicked_button.innerHTML;
+}
+
 function formatText(tagstart,tagend) {
-	post_form = document.getElementById('bbp_reply_content');
-	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	var post_form = get_post_form();
 	el = post_form;
 	if (el.setSelectionRange) {
 		selectedText = el.value.substring(el.selectionStart,el.selectionEnd);
@@ -159,7 +251,7 @@ function formatText(tagstart,tagend) {
 		var selectedText = document.selection.createRange().text;
 		if (selectedText != "") { 
 			var newText = tagstart + selectedText + tagend; 
-			document.selection.createRange().text = newText; 
+			document.selection.createRange().text = newText;
 			return true;
 		} else { return false; }
 	}

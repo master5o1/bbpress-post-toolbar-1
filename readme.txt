@@ -65,13 +65,26 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Changelog ==
 
+= 0.6.0 =
+
+* Reworked the formatting section quite heavily.
+* Updated the color chooser to look a bit nicer.  Added three new colours (Orange, Indigo and Violet).
+* Minor changes to font size panel.
+* Added the font face panel with 8 fonts.
+* Minor change to Links panel.  If text is highlighted in the post textarea then clicking on the links panel button will prompt for the URL and use the highlighted text as the link text.
+* Changed the buttons to use a JavaScript stack.  This means that clicking once on Bold will give you `<strong>`, clicking again will give `</strong>`.  Attempted to produce relatively correct HTML using the stack.
+* Unclosed tag indicator on the button that relates to the unclosed tag.  Also a close tags `</>` button.  Closing open tags is done on submit.
+* Minor adjustments to `toolbar.css`
+
 = 0.5.8 =
+
 * Wow, my testing sux, obviously.  Oh well.
 * Fixed a bug where the image was being uploaded to ./2011/08imagename.jpg instead of ./2011/08/imagename.jpg.
 * Also made the unique filename be a counter of how many occurances of that filename is in the folder: image.jpg exists so named image-1.jpg, image-2.jpg, etc.  Much like WP does usually for it's stuff.
 * Cudos to mvaginger for [bringing this bug to my attention](http://wordpress.org/support/topic/i-am-sorry-but-still-buggy).
 
 = 0.5.7 =
+
 * Reverted back to option-checks rather than included 'child' plugins.
 * Minor restyle of the options page.
 

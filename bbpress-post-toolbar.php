@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: A toolbar for bbPress that can be extended by other plugins.
- Version: 0.5.8
+ Version: 0.5.9
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -28,8 +28,7 @@ add_action( 'init', array('bbp_5o1_toolbar', 'plugin_do_options') );
 add_action('admin_menu', array('bbp_5o1_toolbar', 'admin_add_config_link') );
 add_filter( 'plugin_action_links', array('bbp_5o1_toolbar', 'admin_add_settings_link') , 10, 2 );
 
-if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
-	add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_delete') );
+add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_footer_script') );
 
 // bbPress 2.0 Actions & Filters:
 add_action( 'bbp_init' , array('bbp_5o1_toolbar', 'script_and_style') );
@@ -39,14 +38,15 @@ if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'bbp_post_toolbar_insertion', array('bbp_5o1_toolbar','post_form_toolbar_bar') );
 
 // Components:
+if ( get_option( 'bbp_5o1_toolbar_use_formatting' ) )
+	require_once( dirname(__FILE__) . '/toolbar-format.php' );
+	// require_once( dirname(__FILE__) . '/toolbar-formatting.php' );
 if ( get_option( 'bbp_5o1_toolbar_use_youtube' ) )
 	require_once( dirname(__FILE__) . '/toolbar-video-panel.php' );
 if ( get_option( 'bbp_5o1_toolbar_use_smilies' ) )
 	require_once( dirname(__FILE__) . '/toolbar-smilies-panel.php' );
 if ( get_option( 'bbp_5o1_toolbar_use_images' ) )
 	require_once( dirname(__FILE__) . '/toolbar-images-panel.php' );
-if ( get_option( 'bbp_5o1_toolbar_use_formatting' ) )
-	require_once( dirname(__FILE__) . '/toolbar-formatting.php' );
 
 // Plugin Activation/Deactivation Hooks:	
 register_activation_hook(__FILE__, array('bbp_5o1_toolbar', 'plugin_activation') );
@@ -68,7 +68,6 @@ class bbp_5o1_toolbar {
 		add_option( 'bbp_5o1_toolbar_use_formatting', true, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_smilies', true, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_images', false, '', 'yes' );
-		
 		
 		add_option( 'bbp_5o1_toolbar_use_custom_smilies', false, '', 'yes' );
 		add_option( 'bbp_5o1_toolbar_use_textalign', false, '', 'yes' );
@@ -120,7 +119,6 @@ class bbp_5o1_toolbar {
 		$use_images = false;
 		if ( get_option( 'bbp_5o1_toolbar_use_images' ) )
 			$use_images = true;
-		
 		
 		$custom_smilies = false;
 		if ( get_option('bbp_5o1_toolbar_use_custom_smilies') )
@@ -290,6 +288,11 @@ class bbp_5o1_toolbar {
 				update_option('bbp_5o1_toolbar_use_smilies', true);
 			elseif ($_POST['bbp_5o1_toolbar_use_smilies'] == 0)
 				update_option('bbp_5o1_toolbar_use_smilies', false);
+				
+			if ($_POST['bbp_5o1_toolbar_use_beta'] == 1)
+				update_option('bbp_5o1_toolbar_use_beta', true);
+			elseif ($_POST['bbp_5o1_toolbar_use_beta'] == 0)
+				update_option('bbp_5o1_toolbar_use_beta', false);
 		
 		
 			if ($_POST['bbp_5o1_toolbar_use_custom_smilies'] == 1)
@@ -347,13 +350,13 @@ class bbp_5o1_toolbar {
 				$i = 0;
 				foreach ($items as $item) :
 					if ($item['action'] == 'api_item') : 
-						?><li><a onclick="do_button({action : '<?php echo $item['action']; ?>', panel : 'post-toolbar-item-<?php print $i; ?>'}, <?php echo $item['data']; ?>)"><?php echo $item['inside_anchor']; ?></a></li><?php
+						?><li><a onclick="do_button(this, {action : '<?php echo $item['action']; ?>', panel : 'post-toolbar-item-<?php print $i; ?>'}, <?php echo $item['data']; ?>)"><?php echo $item['inside_anchor']; ?></a></li><?php
 					else:
-						?><li><a onclick="do_button({ action : '<?php echo $item['action']; ?>', panel : 'post-toolbar-item-<?php print $i; ?>' }, function(){ return '<?php if ($item['action'] == 'insert_data' || $item['action'] == 'insert_shortcode') { echo $item['data']; } ?>';})"><?php echo $item['inside_anchor']; ?></a></li><?php
+						?><li><a onclick="do_button(this, { action : '<?php echo $item['action']; ?>', panel : 'post-toolbar-item-<?php print $i; ?>' }, function(){ return '<?php if ($item['action'] == 'insert_data' || $item['action'] == 'insert_shortcode') { echo $item['data']; } elseif (isset($item['panel'])) {echo $item['panel'];} ?>';})"><?php echo $item['inside_anchor']; ?></a></li><?php
 					endif;
 					$i++;
 				endforeach;
-			  ?><li class="right-button"><a onclick="switch_panel('post-toolbar-item-help');"><?php _e( 'Help', 'bbp_5o1_toolbar'); ?></a></li>
+			  ?><li class="right-button"><a onclick="switch_panel('post-toolbar-item-help');"><small><small><?php _e( 'Help', 'bbp_5o1_toolbar'); ?></small></small></a></li>
 			</ul>
 			<?php
 			$i = 0;
@@ -383,10 +386,11 @@ class bbp_5o1_toolbar {
 		return $param;
 	}
 	
-	function post_form_toolbar_delete() {
-		// I couldn't figure out a better way to hide the bar when it's not needed.
+	function post_form_toolbar_footer_script() {
 		?>
 		<script type="text/javascript"><!--
+			addCloseTagsToSubmit();
+			<?php if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) : ?>
 			post_form = document.getElementById('bbp_reply_content');
 			if (post_form==null) post_form = document.getElementById('bbp_topic_content');
 			if (post_form==null)
@@ -408,6 +412,7 @@ class bbp_5o1_toolbar {
 					var throwAway = toolbars[i].parentNode.removeChild(toolbars[i]);
 				}
 			}
+			<?php endif; ?>
 		//--></script>
 		<?php
 	}

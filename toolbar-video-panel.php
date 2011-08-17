@@ -23,11 +23,13 @@ class bbp_5o1_video_panel {
 	function panel_entry($items) {
 		$item['action'] = 'switch_panel';
 		$item['inside_anchor'] = '<img src="' . plugins_url( '/images', __FILE__ ) . '/youtube.png" title="Video" alt="Video" />';
+		
 		$random_video[] = "http://www.youtube.com/watch?v=RSJbYWPEaxw"; // Hallelujah (Bon Jovi)
 		$random_video[] = "http://www.youtube.com/watch?v=XCspzg9-bAg"; // Batroll'd
 		$random_video[] = "http://www.youtube.com/watch?v=RZ-uV72pQKI"; // Pure Imagination
 		$random_video[] = "http://www.youtube.com/watch?v=rgUrqGFxV3Q";	// Lights Out
 		$random_video[] = "http://www.vimeo.com/26753142"; // Share the Rainbow
+		
 		$video_provider['YouTube'] = "http://www.youtube.com/";
 		$video_provider['Dailymotion'] = "http://www.dailymotion.com/";
 		$video_provider['Vimeo'] = "http://www.vimeo.com/";
