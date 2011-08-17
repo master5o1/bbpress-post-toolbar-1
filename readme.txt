@@ -67,6 +67,7 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 = 0.6.0 =
 
+* Video dimensions can be customised: [video width=450 height=286]http://...[/video].  Defaults are 450x286.
 * Reworked the formatting section quite heavily.
 * Updated the color chooser to look a bit nicer.  Added three new colours (Orange, Indigo and Violet).
 * Minor changes to font size panel.

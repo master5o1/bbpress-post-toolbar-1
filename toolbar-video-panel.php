@@ -12,14 +12,6 @@ add_shortcode( 'video', array ( 'bbp_5o1_video_panel', 'video_shortcode' ) );
 
 class bbp_5o1_video_panel {
 
-	function getWidth() {
-		return 450;
-	}
-
-	function getHeight() {
-		return ceil(bbp_5o1_video_panel::getWidth() * (360/480));
-	}
-
 	function panel_entry($items) {
 		$item['action'] = 'switch_panel';
 		$item['inside_anchor'] = '<img src="' . plugins_url( '/images', __FILE__ ) . '/youtube.png" title="Video" alt="Video" />';
@@ -64,29 +56,39 @@ HTML;
 		$host = parse_url($content, PHP_URL_HOST);
 		// YouTube:
 		if ( $host == "youtube.com" || $host == "www.youtube.com" ) {
-			return bbp_5o1_video_panel::youtube( null, $content );
+			return bbp_5o1_video_panel::youtube( $atts, $content );
 		}
 		// Dailymotion:
 		if ( $host == "dailymotion.com" || $host == "www.dailymotion.com" ) {
-			return bbp_5o1_video_panel::dailymotion( null, $content );
+			return bbp_5o1_video_panel::dailymotion( $atts, $content );
 		}
 		// Vimeo:
 		if ( $host == "vimeo.com" || $host == "www.vimeo.com" ) {
-			return bbp_5o1_video_panel::vimeo( null, $content );
+			return bbp_5o1_video_panel::vimeo( $atts, $content );
 		}
 		// Metacafe:
 		if ( $host == "metacafe.com" || $host == "www.metacafe.com" ) {
-			return bbp_5o1_video_panel::metacafe( null, $content );
+			return bbp_5o1_video_panel::metacafe( $atts, $content );
 		}
 		return ' <a href="' . $content . '">' . $content . '</a> ';
 	}
 	
-	function embed_iframe( $video_code ) {
-		return '<iframe src="' . $video_code . '" style="margin:1.0em auto;" width="'. bbp_5o1_video_panel::getWidth() .'" height="' . bbp_5o1_video_panel::getHeight() . '" frameborder="0" allowfullscreen></iframe>';
+	function getDimensions($atts = null) {
+		extract(shortcode_atts(array(
+			'width' => 450,
+			'height' => 286
+		), $atts));
+		return array( 'width' => $width, 'height' => $height );
 	}
 	
-	function embed_flash ( $video_code, $flash_vars ) {
-		return '<embed src="' . $video_code. '" width="' . bbp_5o1_video_panel::getWidth() . '" height="' . bbp_5o1_video_panel::getHeight() . '" flashVars="' . $flash_vars. '"  wmode="transparent" allowFullScreen="true" allowScriptAccess="always" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
+	function embed_iframe( $video_code, $atts = null ) {
+		$dimensions = bbp_5o1_video_panel::getDimensions($atts);
+		return '<iframe src="' . $video_code . '" style="margin:1.0em auto;" width="' . $dimensions['width'] . '" height="' . $dimensions['height'] . '" frameborder="0" allowfullscreen></iframe>';
+	}
+	
+	function embed_flash ( $video_code, $flash_vars = null, $atts = null ) {
+		$dimensions = bbp_5o1_video_panel::getDimensions($atts);
+		return '<embed src="' . $video_code. '" width="' . $dimensions['width'] . '" height="' . $dimensions['height'] . '" flashVars="' . $flash_vars. '"  wmode="transparent" allowFullScreen="true" allowScriptAccess="always" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
 	}
 	
 	// Video Provider Handlers Below:
@@ -97,24 +99,23 @@ HTML;
 			$q = explode('=', $query);
 			$video_code[$q[0]] = $q[1];
 		}
-		return bbp_5o1_video_panel::embed_iframe( "http://www.youtube.com/embed/${video_code['v']}" );
+		return bbp_5o1_video_panel::embed_iframe( "http://www.youtube.com/embed/${video_code['v']}", $atts );
 	}
 	
 	function dailymotion( $atts = null, $content = null ) {
 		$video_code = explode( '_', parse_url( $content, PHP_URL_PATH ));
-		return bbp_5o1_video_panel::embed_iframe( "http://www.dailymotion.com/embed${video_code[0]}" );
+		return bbp_5o1_video_panel::embed_iframe( "http://www.dailymotion.com/embed${video_code[0]}", $atts );
 	}
 	
 	function vimeo( $atts = null, $content = null ) {
 		$video_code = parse_url( $content, PHP_URL_PATH );
-		return bbp_5o1_video_panel::embed_iframe( "http://player.vimeo.com/video${video_code}?portrait=0" );
+		return bbp_5o1_video_panel::embed_iframe( "http://player.vimeo.com/video${video_code}?portrait=0", $atts );
 	}
 	
 	function metacafe( $atts = null, $content = null ) {
-		$content = "http://www.metacafe.com/watch/6845108/cowboys_aliens_clip_attack/";
 		$video_code = parse_url( $content, PHP_URL_PATH );
 		$video_code = explode( '/', $video_code );
-		return bbp_5o1_video_panel::embed_flash( "http://www.metacafe.com/fplayer/${video_code[2]}/what_if.swf", "playerVars=showStats=yes|autoPlay=no" );
+		return bbp_5o1_video_panel::embed_flash( "http://www.metacafe.com/fplayer/${video_code[2]}/what_if.swf", "playerVars=showStats=yes|autoPlay=no", $atts );
 	}
 	
 }
