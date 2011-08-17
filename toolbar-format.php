@@ -9,7 +9,7 @@ class bbp_5o1_toolbar_format {
 
 	function close_tags_entry($items) {
 		$items[] = array( 'action' => 'api_item',
-			'inside_anchor' => '<small>&lt;/&gt;</small>',
+			'inside_anchor' => '<small title="Close HTML Tags">&lt;/&gt;</small>',
 			'data' => "function(stack){closeTags(stack);}");
 		return $items;
 	}

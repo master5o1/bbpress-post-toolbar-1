@@ -25,7 +25,7 @@ class bbp_5o1_smilies_panel {
 		global $wpsmiliestrans;
 		if ( get_option( 'use_smilies' ) ) {
 			$item['action'] = 'switch_panel';
-			$item['inside_anchor'] = str_replace( "class='wp-smiley' ", '', convert_smilies(':)') );
+			$item['inside_anchor'] = str_replace( "class='wp-smiley' ", 'title="Smilies"', convert_smilies(':)') );
 			$item['data'] = "";
 			foreach ($wpsmiliestrans as $code => $name) {
 				$js = "insert_smiley('${code}');";
