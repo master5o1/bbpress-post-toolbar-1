@@ -27,6 +27,19 @@ var post_toolbar_clicked_button = null;
 var post_toolbar_panel_original_offset_height = new Array();
 var post_toolbar_panel_original_offset_height_p = new Array();
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function insert_shortcode(tag) {                                                                                                            //////////
+	insertShortcode(post_toolbar_element_stack, tag, []);                                                                                   //////////
+}                                                                                                                                           //////////
+function testTest(tag_s, tag_e) {                                                                                                           //////////
+	insert_tag(tag_s, tag_e);                                                                                                               //////////
+}                                                                                                                                           //////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function addCloseTagsToSubmit() {
 	var submitButton = document.getElementById('bbp_reply_submit');
 	if (submitButton==null) submitButton = document.getElementById('bbp_topic_submit');
@@ -40,6 +53,7 @@ function addCloseTagsToSubmit() {
 function get_post_form() {
 	var post_form = document.getElementById('bbp_reply_content');
 	if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+	if (post_form==null) return false; // still not found .: neither forms exist.
 	return post_form;
 }
 
@@ -112,34 +126,15 @@ function insert_panel(tag) {
 }
 
 function insert_data(tag) {
-	var post_form = get_post_form();
 	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
-	if (tag == 'underline') {
-		testText('<span style="text-decoration: underline;">','</span>');
-		return;
-	} else if (tag == 'fontleft') {
-		testText('<span style="text-align: left;">','</span>');	
-		return;
-	} else if (tag == 'fontright') {
-		testText('<span style="text-align: right;">','</span>');	
-		return;
-	} else if (tag == 'fontcenter') {
-		testText('<span style="text-align: center;">','</span>');	
-		return;
-	} else if (tag == 'fontjustify') {
-		testText('<span style="text-align: justify;">','</span>');	
-		return;
-	} else if (tag == 'strike') {
-		testText('<span style="text-decoration: line-through;">','</span>');	
-		return;
-	}
-	testText('<' + tag + '>','</' + tag + '>');
+	insert_tag('<' + tag + '>','</' + tag + '>');
 }
 
-function insert_shortcode(tag) {
+function insert_tag(tag_s, tag_e) {
 	var post_form = get_post_form();
-	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
-	testText('[' + tag + ']','[/' + tag + ']');
+	if (!formatText(tag_s,tag_e)) {
+		post_form.value += tag_s + ' ' + tag_e;
+	}
 }
 
 function insert_smiley(smiley) {
@@ -152,21 +147,6 @@ function insert_size(size) {
 	var post_form = get_post_form();
 	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; toolbar_active_panel=''; }
 	insert_tag('<span style="font-size: ' + size + ';">','</span>');
-}
-
-function testTest(tag_s, tag_e) {
-	insert_tag(tag_s, tag_e);
-}
-
-/////////////////////////////////////////////////////////////////////
-// I'm trying to clean this up by making 'better' functions below: //
-/////////////////////////////////////////////////////////////////////
-
-function insert_tag(tag_s, tag_e) {
-	var post_form = get_post_form();
-	if (!formatText(tag_s,tag_e)) {
-		post_form.value += tag_s + ' ' + tag_e;
-	}
 }
 
 function insert_font(font) {
