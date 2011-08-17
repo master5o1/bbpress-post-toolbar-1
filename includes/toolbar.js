@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+var toolbar_animation = true;
 var post_form = document.getElementById('bbp_reply_content');
 if (post_form==null) post_form = document.getElementById('bbp_topic_content');
 var toolbar_active_panel = "";
@@ -24,6 +24,8 @@ var post_toolbar_element_stack = new Array();
 var post_toolbar_attribute_stack = new Array();
 var post_toolbar_button_stack = new Array();
 var post_toolbar_clicked_button = null;
+var post_toolbar_panel_original_offset_height = new Array();
+var post_toolbar_panel_original_offset_height_p = new Array();
 
 function addCloseTagsToSubmit() {
 	var submitButton = document.getElementById('bbp_reply_submit');
@@ -43,13 +45,38 @@ function get_post_form() {
 
 function switch_panel(panel) {
 	var post_form = get_post_form();
-	if (toolbar_active_panel != '') { document.getElementById(toolbar_active_panel).style.display='none'; }
+	if (toolbar_active_panel != '') {
+		document.getElementById(toolbar_active_panel).style.display='none';
+	}
 	if (toolbar_active_panel == panel) {
 		document.getElementById(toolbar_active_panel).style.display='none';
 		toolbar_active_panel='';
 		return;
 	}
 	document.getElementById(panel).style.display='block';
+	if (toolbar_animation) {
+		var height = document.getElementById(panel).offsetHeight;
+		if (post_toolbar_panel_original_offset_height_p.indexOf(panel) == -1) {
+			post_toolbar_panel_original_offset_height_p.push(panel);
+			post_toolbar_panel_original_offset_height.push(height);
+		} else {
+			height = post_toolbar_panel_original_offset_height[post_toolbar_panel_original_offset_height_p.indexOf(panel)];
+		}
+		document.getElementById(panel).style.height = '0px';
+		document.getElementById(panel).style.overflow = 'hidden';
+		start = 0;
+		animate = function(panel, height, start) {
+			document.getElementById(panel).style.height = '0px';
+			document.getElementById(panel).style.height = start + 'px';
+			if (start < height) {
+				window.setTimeout(animate, 1, panel, height, start+=7);
+			}
+		}
+		animate(panel, height, start);
+		document.getElementById(panel).style.height = height + 'px';
+		document.getElementById(panel).style.overflow = '';
+		document.getElementById(panel).style.height = '';
+	}
 	toolbar_active_panel = panel;
 }
 

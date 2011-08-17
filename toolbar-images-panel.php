@@ -101,6 +101,13 @@ class bbp_5o1_images_panel {
 					post_form = document.getElementById('bbp_reply_content');
 					if (post_form==null) post_form = document.getElementById('bbp_topic_content');
 					post_form.value += ' <img src="' + responseJSON.file + '" alt="" /> '
+					
+					if (toolbar_animation) {
+						element = document.getElementById('post-form-image-uploader');
+						height = parseInt(element.parentNode.style.height, 10) + 15;
+						element.parentNode.style.height = height + 'px';
+						post_toolbar_panel_original_offset_height[post_toolbar_panel_original_offset_height_p.indexOf(element.parentNode.getAttribute('id'))] = height;
+					}
 				},
 			});
 		}
