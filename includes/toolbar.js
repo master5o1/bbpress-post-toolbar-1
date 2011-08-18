@@ -4,7 +4,7 @@
 /*  Copyright 2011  Jason Schwarzenberger  (email : jason@master5o1.com)
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-var toolbar_animation = true;
+var toolbar_animation = false;
 var post_form = document.getElementById('bbp_reply_content');
 if (post_form==null) post_form = document.getElementById('bbp_topic_content');
 var toolbar_active_panel = "";
@@ -27,18 +27,14 @@ var post_toolbar_clicked_button = null;
 var post_toolbar_panel_original_offset_height = new Array();
 var post_toolbar_panel_original_offset_height_p = new Array();
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function insert_shortcode(tag) {                                                                                                            //////////
-	insertShortcode(post_toolbar_element_stack, tag, []);                                                                                   //////////
-}                                                                                                                                           //////////
-function testTest(tag_s, tag_e) {                                                                                                           //////////
-	insert_tag(tag_s, tag_e);                                                                                                               //////////
-}                                                                                                                                           //////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////
+function insert_shortcode(tag) {
+	insertShortcode(post_toolbar_element_stack, tag, []);
+}
+function testTest(tag_s, tag_e) {
+	insert_tag(tag_s, tag_e);
+}
+///////
 
 function addCloseTagsToSubmit() {
 	var submitButton = document.getElementById('bbp_reply_submit');
@@ -89,7 +85,7 @@ function switch_panel(panel) {
 		animate(panel, height, start);
 		document.getElementById(panel).style.height = height + 'px';
 		document.getElementById(panel).style.overflow = '';
-		document.getElementById(panel).style.height = '';
+		document.getElementById(panel).style.height = 'auto';
 	}
 	toolbar_active_panel = panel;
 }
@@ -179,7 +175,7 @@ function do_button(button_e, args, f) {
 		f(post_toolbar_element_stack);
 	if (args.action == 'api_panel')
 		f();
-	
+
 }
 
 function insertHTML(stack, tag, attributes) {
@@ -256,10 +252,31 @@ function formatText(tagstart,tagend) {
 	}
 	else {
 		var selectedText = document.selection.createRange().text;
-		if (selectedText != "") { 
-			var newText = tagstart + selectedText + tagend; 
+		if (selectedText != "") {
+			var newText = tagstart + selectedText + tagend;
 			document.selection.createRange().text = newText;
 			return true;
 		} else { return false; }
 	}
+}
+
+// The following lifted from some forum on the net:
+function fnSelect(objId) {
+	fnDeSelect();
+	if (document.selection) {
+	var range = document.body.createTextRange();
+		range.moveToElementText(document.getElementById(objId));
+	range.select();
+	}
+	else if (window.getSelection) {
+	var range = document.createRange();
+	range.selectNode(document.getElementById(objId));
+	window.getSelection().addRange(range);
+	}
+}
+
+function fnDeSelect() {
+	if (document.selection) document.selection.empty();
+	else if (window.getSelection)
+		window.getSelection().removeAllRanges();
 }

@@ -104,7 +104,7 @@ class bbp_5o1_images_panel {
 					
 					if (toolbar_animation) {
 						element = document.getElementById('post-form-image-uploader');
-						height = parseInt(element.parentNode.style.height, 10) + 15;
+						height = parseInt(element.parentNode.style.height, 10) + 16; // assuming 1.0 em = 16px at this time.
 						element.parentNode.style.height = height + 'px';
 						post_toolbar_panel_original_offset_height[post_toolbar_panel_original_offset_height_p.indexOf(element.parentNode.getAttribute('id'))] = height;
 					}

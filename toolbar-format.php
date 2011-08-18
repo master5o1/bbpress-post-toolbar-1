@@ -5,8 +5,102 @@ add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_toolbar_format', 'entry
 add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_toolbar_format', 'close_tags_entry'), 999 );
 add_action( 'bbp_head', array('bbp_5o1_toolbar_format', 'color_style') );
 
+
+add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar_format', 'add_code_shortcode'), -999 );
+add_shortcode( 'code', array('bbp_5o1_toolbar_format', 'do_code') );
+
 class bbp_5o1_toolbar_format {
 
+	function add_code_shortcode($content) {
+		$shortcode_tags['code'] = array('bbp_5o1_toolbar_format', 'do_code');
+		if (empty($shortcode_tags) || !is_array($shortcode_tags))
+			return $content;
+		$tagnames = array_keys($shortcode_tags);
+		$tagregexp = join( '|', array_map('preg_quote', $tagnames) );
+		$pattern = '(.?)\[('.$tagregexp.')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)';
+		// This allows it to pick up the HTML <code> tag.
+		//$content = str_replace( array('<code>', '</code>'), array('[code]', '[/code]'), $content);
+		return preg_replace_callback('/'.$pattern.'/s', 'do_shortcode_tag',  $content);
+	}
+	
+	function do_code( $atts = null, $content = null ) {
+		extract(shortcode_atts(array(
+			'title' => 'arbitrary',
+		), $atts));
+		$count = substr_count( $content, "\n" );
+		$numbers = '';
+		for ($i = 0; $i <= $count; $i++) {
+			$numbers .= $i+1 . ".\n";
+		}
+		$id = 'code-line-'.date('U').'-'.rand(1,999);
+		$numid = str_replace('line', 'num', $id);
+		$content = str_replace( array('<', '>', '[', ']'), array('&lt;', '&gt;', '&#91;', '&#93;'), $content );
+		$content = str_replace(array("\t","  "), array("&nbsp;&nbsp;", "&nbsp;&nbsp;"), $content);
+		$js = 'document.getElementById(\'' . $numid . '\').scrollTop = this.scrollTop; this.scrollTop =  document.getElementById(\'' . $numid . '\').scrollTop;';
+		return '<div class="code-main"><div class="code-title"><span>&nbsp;<strong>Code:</strong> '.$title.' </span><span style="float: right;">(<a onclick="fnSelect(\'' . $id . '\');">select</a>)</span></div><div class="code-num" id="' . $numid . '">' . $numbers . '</div><div class="code-line" onscroll="'.$js.'" id="' . $id . '">' . $content . '</div><div style="clear:both;"></div></div>';
+	}
+	
+	function code_style() {
+		return <<<STYLE
+div.code-title {
+	width: 99.25%;
+	font-family: monospace;
+	margin: 0;
+	padding: 0;
+	background-color: #e5e5e5;
+	border: solid 1px #e5e5e5;
+	border-bottom: none;
+}
+
+div.code-num {
+	text-align: right;
+	width: 7%;
+	float: left;
+	margin: 0 0 1.42em;
+	padding: 0.25em 0 1.0em;
+	display: inline-block;
+	white-space: nowrap;
+	font-family: monospace;
+	border-bottom: solid 1px #e5e5e5;
+	background-color: #e5e5e5;
+	overflow: hidden;
+}
+
+div.code-line {
+	width: 92.5%;
+	float: left;
+	display: inline-block;
+	margin: 0 0 1.42em;
+	padding: 0.25em 0 1.0em;
+	border: solid 1px #e5e5e5;
+	border-top: none;
+	background-color: #f9f9f9;
+	white-space: nowrap;
+	font-family: monospace;
+	overflow: hidden;
+}
+
+div.code-num,
+div.code-line {
+	max-height: 400px;
+}
+
+div.code-main {
+	margin: 5px 0;
+	padding: 0;
+}
+
+div.code-main:hover .code-num {
+}
+
+div.code-main:hover .code-line {
+	overflow-y: auto;
+	overflow-x: scroll;
+	margin: 0;
+}
+STYLE;
+	}
+	
 	function close_tags_entry($items) {
 		$items[] = array( 'action' => 'api_item',
 			'inside_anchor' => '<small title="Close HTML Tags">&lt;/&gt;</small>',
@@ -126,6 +220,9 @@ class bbp_5o1_toolbar_format {
 #post-toolbar .panel .color-choice:hover {
 	width: <?php echo 2*( (1/(count($colors)+1))*100 ); ?>%;
 }
+
+<?php echo bbp_5o1_toolbar_format::code_style(); ?>
+
 /*]]>*/</style>
 	 <?php
 	}

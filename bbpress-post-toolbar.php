@@ -32,8 +32,21 @@ add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_footer_scr
 
 // bbPress 2.0 Actions & Filters:
 add_action( 'bbp_init' , array('bbp_5o1_toolbar', 'script_and_style') );
-if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
-	add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) {
+	add_action( 'bbp_theme_before_reply_form_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	add_action( 'bbp_theme_before_topic_form_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	
+	// Avatar makes it look heaps yuck if I use these two.
+	// add_action( 'bbp_theme_before_reply_form_content' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	// add_action( 'bbp_theme_before_topic_form_content' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	
+	// Don't like it being _after_ the text area.
+	// add_action( 'bbp_theme_after_reply_form_content' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	// add_action( 'bbp_theme_after_topic_form_content' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	
+	// Old way:
+	// add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+}
 if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'bbp_post_toolbar_insertion', array('bbp_5o1_toolbar','post_form_toolbar_bar') );
 
@@ -337,7 +350,6 @@ class bbp_5o1_toolbar {
 
 	function post_form_toolbar_bar($param = null) {
 		global $wpsmiliestrans;
-		// Allow for pluggable and extended items to be added:
 		$items = apply_filters( 'bbp_5o1_toolbar_add_items' , array() );
 		if (count($items) == 0) {
 			$items[] = array( 'action' => 'switch_panel',
@@ -390,28 +402,30 @@ class bbp_5o1_toolbar {
 		?>
 		<script type="text/javascript"><!--
 			addCloseTagsToSubmit();
+			
+			// Deleting the bar is not necessary now that we have those nicely placed action hooks.
 			<?php if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) : ?>
-			post_form = document.getElementById('bbp_reply_content');
-			if (post_form==null) post_form = document.getElementById('bbp_topic_content');
-			if (post_form==null)
-				if (document.getElementById('post-toolbar') != null)
-					document.getElementById('post-toolbar').parentNode.removeChild(document.getElementById('post-toolbar'));
-			if (post_form != null) {
-				k = 0;
-				toolbars = [];
-				divs = document.getElementsByTagName('div');
-				for (var i = 0; i < divs.length; i++) {
-					if (divs[i].hasAttribute('id')) {
-						if (divs[i].getAttribute('id') == 'post-toolbar') {
-							toolbars[k] = divs[i];
-							k++;
-						}
-					}
-				}
-				for (var i = 0; i < toolbars.length-1; i++) {
-					var throwAway = toolbars[i].parentNode.removeChild(toolbars[i]);
-				}
-			}
+			// post_form = document.getElementById('bbp_reply_content');
+			// if (post_form==null) post_form = document.getElementById('bbp_topic_content');
+			// if (post_form==null)
+				// if (document.getElementById('post-toolbar') != null)
+					// document.getElementById('post-toolbar').parentNode.removeChild(document.getElementById('post-toolbar'));
+			// if (post_form != null) {
+				// k = 0;
+				// toolbars = [];
+				// divs = document.getElementsByTagName('div');
+				// for (var i = 0; i < divs.length; i++) {
+					// if (divs[i].hasAttribute('id')) {
+						// if (divs[i].getAttribute('id') == 'post-toolbar') {
+							// toolbars[k] = divs[i];
+							// k++;
+						// }
+					// }
+				// }
+				// for (var i = 0; i < toolbars.length-1; i++) {
+					// var throwAway = toolbars[i].parentNode.removeChild(toolbars[i]);
+				// }
+			// }
 			<?php endif; ?>
 		//--></script>
 		<?php

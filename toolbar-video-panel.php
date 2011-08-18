@@ -4,7 +4,7 @@
 add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_video_panel', 'panel_entry'), 2 );
 
 // Add shortcodes to bbPress replies text:
-add_filter( 'bbp_get_reply_content', array('bbp_5o1_video_panel', 'add_video_shortcodes') );
+add_filter( 'bbp_get_reply_content', array('bbp_5o1_video_panel', 'add_video_shortcodes'), 0);
 
 // Add shortcodes to WordPress pages/posts/etc:
 add_shortcode( 'youtube', array('bbp_5o1_video_panel', 'youtube') ); // Keep the [youtube] shortcode for backwards-compat, and because why not?
@@ -21,11 +21,13 @@ class bbp_5o1_video_panel {
 		$random_video[] = "http://www.youtube.com/watch?v=RZ-uV72pQKI"; // Pure Imagination
 		$random_video[] = "http://www.youtube.com/watch?v=rgUrqGFxV3Q";	// Lights Out
 		$random_video[] = "http://www.vimeo.com/26753142"; // Share the Rainbow
+		$random_video[] = "http://megavideo.com/?v=LYWNYM1J"; // Megavideo something.
 		
 		$video_provider['YouTube'] = "http://www.youtube.com/";
 		$video_provider['Dailymotion'] = "http://www.dailymotion.com/";
 		$video_provider['Vimeo'] = "http://www.vimeo.com/";
 		$video_provider['Metacafe'] = "http://www.metacafe.com/";
+		$video_provider['Megavideo'] = "http://www.megavideo.com/";
 		foreach ($video_provider as $key => $value) {
 			$video_providers .= '<a href="' . $value . '" title="' . $key . '">' . $key . '</a> ';
 		}
@@ -70,7 +72,11 @@ HTML;
 		if ( $host == "metacafe.com" || $host == "www.metacafe.com" ) {
 			return bbp_5o1_video_panel::metacafe( $atts, $content );
 		}
-		return ' <a href="' . $content . '">' . $content . '</a> ';
+		// Megavideo
+		if ( $host == "megavideo.com" || $host == "www.megavideo.com" ) {
+			return bbp_5o1_video_panel::megavideo( $atts, $content );
+		}
+		return $content;
 	}
 	
 	function getDimensions($atts = null) {
@@ -118,6 +124,15 @@ HTML;
 		return bbp_5o1_video_panel::embed_flash( "http://www.metacafe.com/fplayer/${video_code[2]}/what_if.swf", "playerVars=showStats=yes|autoPlay=no", $atts );
 	}
 	
+	function megavideo( $atts = null, $content = null ) {
+		$url_query = explode('&', parse_url($content, PHP_URL_QUERY));
+		foreach ($url_query as $query) {
+			$q = explode('=', $query);
+			$video_code[$q[0]] = $q[1];
+		}
+		return bbp_5o1_video_panel::embed_flash( "http://www.megavideo.com/v/${video_code['v']}", null, $atts );
+	}
+
 }
 
 ?>
