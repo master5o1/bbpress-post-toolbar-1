@@ -16,7 +16,7 @@ Post toolbar for bbPress 2.0.
 * Enables embedding of images in a bbPress post (turn it on in the settings).
 * Users can upload images directly to the site (Valums' [Ajax Upload](http://valums.com/ajax-upload/) script)
 * Allows &lt;span style=""&gt; in a bbPress posts.
-* Embeds online videos from multiple providers (Youtube, Dailymotion, Vimeo, Metacafe, Metavideo) using [video]http://...[video]
+* Embeds online videos from multiple providers (Dailymotion, LiveLeak, Megavideo, Metacafe, Vimeo, YouTube,) using [video]http://...[video]
 * Also provides a [youtube]http://...[/youtube] shortcode.
 * Toolbar items all pluggable, defaults can be turned off and replaced by custom ones.
 * Default item set is formatting, smilies, and videos.
@@ -67,7 +67,10 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 = 0.6.0 =
 
-* Added a [code][/code] shortcode.  Tempted to hook it into the <code></code> html tag.  It displays line numbers and holds true with indentation.
+* Adjusted the toolbar HTML and CSS to fix it so that if the buttons are too wide for the toolbar, the overflow into a second layor still looks nice.
+* LiveLeak video support; Also RedTube but that's not listed on the video panel because it's pr0ns.
+* Added a [code][/code] shortcode (Turned off).  Tempted to hook it into the <code></code> html tag.  It displays line numbers and holds true with indentation.
+* The add_shortcode() and add_filter() for the [code][/code] is commented out in toolbar-format.php.  Uncomment them to use [code][/code].
 * bbPress 2.0-RC3 brings better action hooks for the bar placement.  This means that I don't have to use bbp_template_notices and attempt to delete all but one placed bar.
 * That is: The bar is printed _exactly_ where I want it.  If it doesn't get printed at all or where you want it, turn on manual insertion and put it where it should be.
 * Added Megavideo support to the video shortcode.

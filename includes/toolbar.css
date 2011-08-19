@@ -9,7 +9,7 @@
 	line-height: 22px;
 	list-style-type: none;
 	background: #f9f9f9;
-	border: solid 1px #e1e1e1;
+	border: solid 1px #efefef;
 	border-radius: 3px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
@@ -19,20 +19,25 @@
 
 #post-toolbar #buttons li {
 	display: inline-block;
-	border-right: solid 1px #efefef;
 	min-width: 24px;
 	text-align: center;
+	border-top: none;
+	border-right: solid 1px #efefef;
+	border-bottom: solid 1px #efefef;
+	border-left: none;
+	margin-bottom: -1px;
 }
 
 #post-toolbar #buttons li.right-button {
 	border-right: none;
 	border-left: solid 1px #efefef;
+	margin-left: -1px;
 	float: right;
-	padding: 0 5px;
+	min-width: 24px;
 }
 
 #post-toolbar #buttons li:hover {
-	background: #f3f3f3;
+	background-color: #efefef;
 }
 
 #post-toolbar #buttons li a {
@@ -64,8 +69,8 @@
 	padding: 5px;
 	min-height: 50px;
 	margin: 0 10px 5px;
-	background: #fafafa;
-	border: solid 1px #e5e5e5;
+	background: #fcfcfc;
+	border: solid 1px #efefef;
 	border-top: none;
 	border-radius: 0 0 3px 3px;
 	-moz-border-radius: 0 0 3px 3px;

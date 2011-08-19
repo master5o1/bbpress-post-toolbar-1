@@ -260,6 +260,30 @@ function formatText(tagstart,tagend) {
 	}
 }
 
+// Delete the duplicate bars, or the bar completely:
+function delete_post_toolbar() {
+	var post_form = get_post_form();
+	if (!post_form) {
+		if (document.getElementById('post-toolbar') != null)
+			document.getElementById('post-toolbar').parentNode.removeChild(document.getElementById('post-toolbar'));
+		return;
+	}
+	k = 0;
+	toolbars = [];
+	divs = document.getElementsByTagName('div');
+	for (var i = 0; i < divs.length; i++) {
+		if (divs[i].hasAttribute('id')) {
+			if (divs[i].getAttribute('id') == 'post-toolbar') {
+				toolbars[k] = divs[i];
+				k++;
+			}
+		}
+	}
+	for (var i = 0; i < toolbars.length-1; i++) {
+		var throwAway = toolbars[i].parentNode.removeChild(toolbars[i]);
+	}
+}
+
 // The following lifted from some forum on the net:
 function fnSelect(objId) {
 	fnDeSelect();

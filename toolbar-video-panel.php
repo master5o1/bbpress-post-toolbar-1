@@ -21,13 +21,16 @@ class bbp_5o1_video_panel {
 		$random_video[] = "http://www.youtube.com/watch?v=RZ-uV72pQKI"; // Pure Imagination
 		$random_video[] = "http://www.youtube.com/watch?v=rgUrqGFxV3Q";	// Lights Out
 		$random_video[] = "http://www.vimeo.com/26753142"; // Share the Rainbow
-		$random_video[] = "http://megavideo.com/?v=LYWNYM1J"; // Megavideo something.
+		$random_video[] = "http://megavideo.com/?v=LYWNYM1J";
+		$random_video[] = "http://www.liveleak.com/view?i=ca2_1313725546"; 
 		
-		$video_provider['YouTube'] = "http://www.youtube.com/";
 		$video_provider['Dailymotion'] = "http://www.dailymotion.com/";
-		$video_provider['Vimeo'] = "http://www.vimeo.com/";
-		$video_provider['Metacafe'] = "http://www.metacafe.com/";
+		$video_provider['LiveLeak'] = "http://www.liveleak.com/";
 		$video_provider['Megavideo'] = "http://www.megavideo.com/";
+		$video_provider['Metacafe'] = "http://www.metacafe.com/";
+		//$video_provider['RedTube'] = "http://www.redtube.com/";
+		$video_provider['Vimeo'] = "http://www.vimeo.com/";
+		$video_provider['YouTube'] = "http://www.youtube.com/";
 		foreach ($video_provider as $key => $value) {
 			$video_providers .= '<a href="' . $value . '" title="' . $key . '">' . $key . '</a> ';
 		}
@@ -75,6 +78,14 @@ HTML;
 		// Megavideo
 		if ( $host == "megavideo.com" || $host == "www.megavideo.com" ) {
 			return bbp_5o1_video_panel::megavideo( $atts, $content );
+		}
+		// RedTube
+		if ( $host == "redtube.com" || $host == "www.redtube.com" ) {
+			return bbp_5o1_video_panel::redtube( $atts, $content );
+		}
+		// LiveLeak
+		if ( $host == "liveleak.com" || $host == "www.liveleak.com" ) {
+			return bbp_5o1_video_panel::liveleak( $atts, $content );
 		}
 		return $content;
 	}
@@ -133,6 +144,19 @@ HTML;
 		return bbp_5o1_video_panel::embed_flash( "http://www.megavideo.com/v/${video_code['v']}", null, $atts );
 	}
 
+	function liveleak( $atts = null, $content = null ) {
+		$url_query = explode('&', parse_url($content, PHP_URL_QUERY));
+		foreach ($url_query as $query) {
+			$q = explode('=', $query);
+			$video_code[$q[0]] = $q[1];
+		}
+		return bbp_5o1_video_panel::embed_flash( "http://www.liveleak.com/e/${video_code['i']}", null, $atts );		
+	}
+
+	function redtube( $atts = null, $content = null ) {
+		$video_code = str_replace( '/', '', parse_url( $content, PHP_URL_PATH ) );
+		return bbp_5o1_video_panel::embed_flash( "http://embed.redtube.com/player/?style=redtube&id=${video_code}", "autostart=false", $atts );
+	}
 }
 
 ?>

@@ -6,8 +6,8 @@ add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_toolbar_format', 'close
 add_action( 'bbp_head', array('bbp_5o1_toolbar_format', 'color_style') );
 
 
-add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar_format', 'add_code_shortcode'), -999 );
-add_shortcode( 'code', array('bbp_5o1_toolbar_format', 'do_code') );
+// add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar_format', 'add_code_shortcode'), -999 );
+// add_shortcode( 'code', array('bbp_5o1_toolbar_format', 'do_code') );
 
 class bbp_5o1_toolbar_format {
 
@@ -108,7 +108,8 @@ STYLE;
 		return $items;
 	}
 
-	function entry($items) {						 
+	function entry($items) {
+	
 		$items[] = array( 'action' => 'api_item',
 						 'inside_anchor' => '<img src="' . plugins_url( '/images/bold.png', __FILE__ ) . '" title="Bold" alt="Bold" />',
 						 'data' => "function(stack){insertHTML(stack, 'strong', []);}");

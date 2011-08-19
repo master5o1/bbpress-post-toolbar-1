@@ -53,7 +53,7 @@ if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 // Components:
 if ( get_option( 'bbp_5o1_toolbar_use_formatting' ) )
 	require_once( dirname(__FILE__) . '/toolbar-format.php' );
-	// require_once( dirname(__FILE__) . '/toolbar-formatting.php' );
+	// require_once( dirname(__FILE__) . '/toolbar-formatting.php' ); // old
 if ( get_option( 'bbp_5o1_toolbar_use_youtube' ) )
 	require_once( dirname(__FILE__) . '/toolbar-video-panel.php' );
 if ( get_option( 'bbp_5o1_toolbar_use_smilies' ) )
@@ -359,6 +359,8 @@ class bbp_5o1_toolbar {
 		?>
 		<div id="post-toolbar">
 			<ul id="buttons" style="list-style-type: none;"><?php
+				?><li class="right-button"><a onclick="switch_panel('post-toolbar-item-help');" title="<?php _e( 'Help', 'bbp_5o1_toolbar'); ?>"><small><small><?php _e( 'Help', 'bbp_5o1_toolbar'); ?></small></small></a></li><?php
+			?><?php
 				$i = 0;
 				foreach ($items as $item) :
 					if ($item['action'] == 'api_item') : 
@@ -368,8 +370,9 @@ class bbp_5o1_toolbar {
 					endif;
 					$i++;
 				endforeach;
-			  ?><li class="right-button"><a onclick="switch_panel('post-toolbar-item-help');"><small><small><?php _e( 'Help', 'bbp_5o1_toolbar'); ?></small></small></a></li>
-			</ul>
+				// 
+			  ?><?php
+			?></ul>
 			<?php
 			$i = 0;
 			foreach ($items as $item) :
@@ -402,30 +405,9 @@ class bbp_5o1_toolbar {
 		?>
 		<script type="text/javascript"><!--
 			addCloseTagsToSubmit();
-			
+			<?php if ( ! get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) : ?>
 			// Deleting the bar is not necessary now that we have those nicely placed action hooks.
-			<?php if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) : ?>
-			// post_form = document.getElementById('bbp_reply_content');
-			// if (post_form==null) post_form = document.getElementById('bbp_topic_content');
-			// if (post_form==null)
-				// if (document.getElementById('post-toolbar') != null)
-					// document.getElementById('post-toolbar').parentNode.removeChild(document.getElementById('post-toolbar'));
-			// if (post_form != null) {
-				// k = 0;
-				// toolbars = [];
-				// divs = document.getElementsByTagName('div');
-				// for (var i = 0; i < divs.length; i++) {
-					// if (divs[i].hasAttribute('id')) {
-						// if (divs[i].getAttribute('id') == 'post-toolbar') {
-							// toolbars[k] = divs[i];
-							// k++;
-						// }
-					// }
-				// }
-				// for (var i = 0; i < toolbars.length-1; i++) {
-					// var throwAway = toolbars[i].parentNode.removeChild(toolbars[i]);
-				// }
-			// }
+			// delete_post_toolbar()
 			<?php endif; ?>
 		//--></script>
 		<?php
