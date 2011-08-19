@@ -1,7 +1,7 @@
 === bbPress Post Toolbar ===
 Contributors: master5o1
 Donate link: http://master5o1.com/donate/
-Tags: bbPress, bbPress 2.0, toolbar, youtube, images, smilies, smileys, emoticons, 5o1
+Tags: bbPress, bbPress 2.0, toolbar, videos, youtube, images, smilies, smileys, emoticons, 5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2.1
 Stable tag: 0.6.0
