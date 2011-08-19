@@ -34,12 +34,15 @@ class bbp_5o1_video_panel {
 		foreach ($video_provider as $key => $value) {
 			$video_providers .= '<a href="' . $value . '" title="' . $key . '">' . $key . '</a> ';
 		}
+		$online_vid_url = __( 'Online Video URL:', 'bbp_5o1_toolbar' );
+		$supported = __( 'Supported video providers:', 'bbp_5o1_toolbar' );
+		$random_ex = __( 'Random Example:', 'bbp_5o1_toolbar' );
 		$item['data'] = <<<HTML
-<div style="width: 310px; display: inline-block;"><span>Online Video URL:</span><br />
+<div style="width: 310px; display: inline-block;"><span>${online_vid_url}:</span><br />
 <input style="display:inline-block;width:300px;" type="text" id="video_url" value="" /></div>
 <a class="toolbar-apply" style="margin-top: 1.4em;" onclick="insert_panel('video');">Apply Link</a>
-<p style="font-size: x-small;"><span>Supported video providers: ${video_providers}</span><br />
-<span>Random Example: [video]${random_video[rand(0, (count($random_video)-1))]}[/video]</span></p>
+<p style="font-size: x-small;"><span>${supported} ${video_providers}</span><br />
+<span>${random_ex} [video]${random_video[rand(0, (count($random_video)-1))]}[/video]</span></p>
 HTML;
 		$items[] = $item;
 		return $items;
