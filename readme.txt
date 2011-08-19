@@ -59,9 +59,9 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 
 == Screenshots ==
 
-1. The toolbar displaying the opened Links panel.
+1. The toolbar, showing Bold tag is open.
 1. The YouTube panel opened.
-1. Toolbar options in WP Admin.
+1. Image panel part of the toolbar options.
 
 == Changelog ==
 
