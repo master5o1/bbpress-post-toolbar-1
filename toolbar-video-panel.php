@@ -63,7 +63,7 @@ HTML;
 	function video_shortcode( $atts = null, $content = null ) {
 		$host = parse_url($content, PHP_URL_HOST);
 		// YouTube:
-		if ( $host == "youtube.com" || $host == "www.youtube.com" ) {
+		if ( $host == "youtube.com" || $host == "www.youtube.com" || $host == "youtu.be" || $host == "www.youtu.be" ) {
 			return bbp_5o1_video_panel::youtube( $atts, $content );
 		}
 		// Dailymotion:
@@ -114,21 +114,33 @@ HTML;
 	// Video Provider Handlers Below:
 	
 	function youtube( $atts = null, $content = null ) {
-		$url_query = explode('&', parse_url($content, PHP_URL_QUERY));
-		foreach ($url_query as $query) {
-			$q = explode('=', $query);
-			$video_code[$q[0]] = $q[1];
+		$host = parse_url($content, PHP_URL_HOST);
+		if ( $host == "youtu.be" || $host == "www.youtu.be" ) {
+			$video_code['v'] = str_replace('/', '', parse_url($content, PHP_URL_PATH));
+		} else {
+			$url_query = explode('&', parse_url($content, PHP_URL_QUERY));
+			foreach ($url_query as $query) {
+				$q = explode('=', $query);
+				$video_code[$q[0]] = $q[1];
+			}
 		}
-		return bbp_5o1_video_panel::embed_iframe( "http://www.youtube.com/embed/${video_code['v']}", $atts );
+		if ( is_ssl() )
+			return bbp_5o1_video_panel::embed_iframe( "http://www.youtube.com/embed/${video_code['v']}", $atts );
+		return bbp_5o1_video_panel::embed_iframe( "https://www.youtube.com/embed/${video_code['v']}", $atts );
+		
 	}
 	
 	function dailymotion( $atts = null, $content = null ) {
 		$video_code = explode( '_', parse_url( $content, PHP_URL_PATH ));
+		if ( is_ssl() )
+			return bbp_5o1_video_panel::embed_iframe( "https://www.dailymotion.com/embed${video_code[0]}", $atts );
 		return bbp_5o1_video_panel::embed_iframe( "http://www.dailymotion.com/embed${video_code[0]}", $atts );
 	}
 	
 	function vimeo( $atts = null, $content = null ) {
 		$video_code = parse_url( $content, PHP_URL_PATH );
+		if ( is_ssl() )
+			return bbp_5o1_video_panel::embed_iframe( "https://player.vimeo.com/video${video_code}?portrait=0", $atts );
 		return bbp_5o1_video_panel::embed_iframe( "http://player.vimeo.com/video${video_code}?portrait=0", $atts );
 	}
 	

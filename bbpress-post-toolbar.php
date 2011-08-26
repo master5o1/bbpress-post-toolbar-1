@@ -3,7 +3,7 @@
  Plugin Name: bbPress Post Toolbar
  Plugin URI: http://wordpress.org/extend/plugins/bbpress-post-toolbar/
  Description: A toolbar for bbPress that can be extended by other plugins.
- Version: 0.6.0
+ Version: 0.6.1
  Author: Jason Schwarzenberger
  Author URI: http://master5o1.com/
 */
@@ -33,6 +33,20 @@ add_action( 'wp_footer' , array('bbp_5o1_toolbar', 'post_form_toolbar_footer_scr
 // bbPress 2.0 Actions & Filters:
 add_action( 'bbp_init' , array('bbp_5o1_toolbar', 'script_and_style') );
 if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) {
+	/*
+	The foloowing add_actions are pairs related to `reply` and `topic`.
+	Comment out one pair before uncommenting the next.
+	As you can see, the // is the comment marker.
+	
+	If none of the 3 pairs work for your site, then flip the `if ( true ) {` to false; `if ( false ) {`
+	This should revert it to the old method, as explained below.
+	
+	I may make the decision between these be an option in the settings, but at the moment I'm tired
+	and want to get the changes released before I go skiing for a week.  Why? So that the toolbar-images-panel.php
+	gets fixed.  Also, I've forgot what I did change...but committing will find that.
+	*/
+	if ( true ) {
+	// This is the best case at the moment because of the default theme avatar placement.
 	add_action( 'bbp_theme_before_reply_form_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
 	add_action( 'bbp_theme_before_topic_form_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
 	
@@ -44,8 +58,18 @@ if ( !get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) {
 	// add_action( 'bbp_theme_after_reply_form_content' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
 	// add_action( 'bbp_theme_after_topic_form_content' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
 	
+		define( 'BBP_5o1_DELETE_EXCESS_TOOLBARS', false );
 	// Old way:
-	// add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	} else {
+	/*
+	If the above add_actions don't work for you, make the if statement `if ( false ) {` instead of true.
+	This will revert it to the OLD method of printing the bar wherever bbp_template_notices are and then
+	attempting to delete the excess toolbars.
+	Just note, this option will not be available in 7.0 or greater.
+	*/
+		define( 'BBP_5o1_DELETE_EXCESS_TOOLBARS', true );
+		add_action( 'bbp_template_notices' , array('bbp_5o1_toolbar', 'post_form_toolbar_bar') );
+	}
 }
 if ( get_option( 'bbp_5o1_toolbar_manual_insertion' ) )
 	add_action( 'bbp_post_toolbar_insertion', array('bbp_5o1_toolbar','post_form_toolbar_bar') );
@@ -405,10 +429,12 @@ class bbp_5o1_toolbar {
 		?>
 		<script type="text/javascript"><!--
 			addCloseTagsToSubmit();
-			<?php if ( ! get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) : ?>
-			// Deleting the bar is not necessary now that we have those nicely placed action hooks.
-			// delete_post_toolbar()
-			<?php endif; ?>
+			<?php if ( ! get_option( 'bbp_5o1_toolbar_manual_insertion' ) ) :
+				if ( BBP_5o1_DELETE_EXCESS_TOOLBARS ) :
+					// Deleting the bar is not necessary now that we have those nicely placed action hooks.
+					echo "delete_post_toolbar();";
+				endif;
+			endif; ?>
 		//--></script>
 		<?php
 	}

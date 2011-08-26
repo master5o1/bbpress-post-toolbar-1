@@ -177,7 +177,7 @@ STYLE;
 
 		$html = '';
 		foreach ($fonts as $font) {
-			$html .= '<a title="' . $font . '" onclick="insert_font(\'' . addslashes($font) . '\');" style="display: inline-block; min-width: 6em;margin:0 1.0em;font-family:' . $font . ';">' . $font . '</a> ';
+			$html .= '<a title="' . $font . '" onclick="insert_font(\'' . addslashes($font) . '\');" style="cursor: pointer; display: inline-block; margin:0 0.5em;font-family:' . $font . '; font-size: 1.4em;">' . $font . '</a> ';
 		}
 		return '<div style="text-align: center;">' . $html . '</div>';
 	}

@@ -1,7 +1,7 @@
 === bbPress Post Toolbar ===
 Contributors: master5o1
 Donate link: http://master5o1.com/donate/
-Tags: bbPress, bbPress 2.0, toolbar, videos, youtube, images, smilies, smileys, emoticons, 5o1
+Tags: bbPress, bbPress 2.0, toolbar, youtube, images, smilies, smileys, emoticons, 5o1
 Requires at least: WordPress 3.1+ and bbPress 2.0+
 Tested up to: 3.2.1
 Stable tag: 0.6.0
@@ -64,6 +64,11 @@ I recommend that this folder is either copied or moved to the `/wp-content/` dir
 1. Image panel part of the toolbar options.
 
 == Changelog ==
+
+= 0.6.1 =
+
+* Fixed the 5MB issue in toolbar-images-panel.php.  It now uses your site's PHP settings to determine your max upload filesize.
+* Something else, but I've forgotten because I did it a week ago and didn't write it down.  Main reason for releasing this update is so that the fix above is applied and released to all before I go skiing for a week.
 
 = 0.6.0 =
 
