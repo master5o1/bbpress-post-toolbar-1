@@ -40,6 +40,22 @@ class bbp_5o1_images_panel {
 		return $vars;
 	}
 	
+	// PHP.net gave this.
+	function return_bytes($val) {
+		$val = trim($val);
+		$last = strtolower($val[strlen($val)-1]);
+		switch($last) {
+			// The 'G' modifier is available since PHP 5.1.0
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+		return $val;
+	}
+	
 	function fileupload_trigger_check() {
 		if ( intval(get_query_var('postform_fileupload')) == 1 ) {
 			if ( ! ( get_option( 'bbp_5o1_toolbar_allow_image_uploads' ) && ( is_user_logged_in() || get_option( 'bbp_5o1_toolbar_allow_anonymous_image_uploads' ) ) ) ) {
@@ -52,7 +68,8 @@ class bbp_5o1_images_panel {
 			// Because using Extensions only is very bad.
 			$allowedMimes = array(IMAGETYPE_JPEG, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF);
 			// max file size in bytes
-			$sizeLimit = 5 * 1024 * 1024;
+			$sizeLimit = bbp_5o1_images_panel::return_bytes(ini_get('upload_max_filesize'));
+			//$sizeLimit = 5 * 1024 * 1024;
 			$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
 			$directory = wp_upload_dir();
 			$result = $uploader->handleUpload( trailingslashit( $directory['path'] ) );
@@ -95,7 +112,8 @@ class bbp_5o1_images_panel {
 				element: document.getElementById('post-form-image-uploader'),
 				action: '<?php print get_site_url() . '/?postform_fileupload=1'; ?>',
 				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],        
-				sizeLimit: 5*1024*1024, // max size   
+				/* <?php echo ini_get('upload_max_filesize'); ?> <?php echo ini_get('post_max_size'); ?> */
+				sizeLimit: <?php echo bbp_5o1_images_panel::return_bytes(ini_get('upload_max_filesize')); ?>,
 				onComplete: function(id, fileName, responseJSON){
 					if (responseJSON.success != true) return
 					post_form = document.getElementById('bbp_reply_content');
