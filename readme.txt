@@ -187,8 +187,11 @@ Added translation .pot file so that people can have custom translations.
 
 == To Do ==
 
+* Make a list.
 * Go to sleep.
-* Clean some things.
+* Allow customisable, savable CSS.
+* Attempt customisable button ordering.
+* Get this onto github.
 * Other things that I can't figure out yet.
 * Relax and have a cup of hot chocolate.
 
