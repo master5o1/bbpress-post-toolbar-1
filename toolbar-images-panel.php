@@ -68,8 +68,7 @@ class bbp_5o1_images_panel {
 			// Because using Extensions only is very bad.
 			$allowedMimes = array(IMAGETYPE_JPEG, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF);
 			// max file size in bytes
-			$sizeLimit = bbp_5o1_images_panel::return_bytes(ini_get('upload_max_filesize'));
-			//$sizeLimit = 5 * 1024 * 1024;
+			$sizeLimit = bbp_5o1_images_panel::return_bytes(min(array(ini_get('post_max_size'), ini_get('upload_max_filesize'))));
 			$uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
 			$directory = wp_upload_dir();
 			$result = $uploader->handleUpload( trailingslashit( $directory['path'] ) );
@@ -113,12 +112,12 @@ class bbp_5o1_images_panel {
 				action: '<?php print get_site_url() . '/?postform_fileupload=1'; ?>',
 				allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],        
 				/* <?php echo ini_get('upload_max_filesize'); ?> <?php echo ini_get('post_max_size'); ?> */
-				sizeLimit: <?php echo bbp_5o1_images_panel::return_bytes(ini_get('upload_max_filesize')); ?>,
+				sizeLimit: <?php echo bbp_5o1_images_panel::return_bytes(min(array(ini_get('post_max_size'), ini_get('upload_max_filesize')))); ?>,
 				onComplete: function(id, fileName, responseJSON){
 					if (responseJSON.success != true) return
 					post_form = document.getElementById('bbp_reply_content');
 					if (post_form==null) post_form = document.getElementById('bbp_topic_content');
-					post_form.value += ' <img src="' + responseJSON.file + '" alt="" /> '
+					post_form.value += ' <a href="' + responseJSON.file + '"><img src="' + responseJSON.file + '" alt="" /></a> '
 					
 					if (toolbar_animation) {
 						element = document.getElementById('post-form-image-uploader');
