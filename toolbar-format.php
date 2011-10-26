@@ -2,12 +2,16 @@
 
 // Add panel entry to toolbar:
 add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_toolbar_format', 'entry'), 0 );
-add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_toolbar_format', 'close_tags_entry'), 999 );
-add_action( 'bbp_head', array('bbp_5o1_toolbar_format', 'color_style') );
+add_filter( 'bbp_5o1_toolbar_add_items' , array('bbp_5o1_toolbar_format', 'close_tags_entry'), 990 );
 
+add_action( 'bbp_5o1_toolbar_css', array('bbp_5o1_toolbar_format', 'color_style') );
 
-// add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar_format', 'add_code_shortcode'), -999 );
-// add_shortcode( 'code', array('bbp_5o1_toolbar_format', 'do_code') );
+add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar_format', 'add_code_shortcode'), -999 );
+add_shortcode( 'code', array('bbp_5o1_toolbar_format', 'do_code') );
+add_filter( 'bbp_get_reply_content', array('bbp_5o1_toolbar_format', 'decode_magic_code_shortcode'), 999 );
+
+if ( !isset($magic_code_shortcode_content_array) )
+	$magic_code_shortcode_content_array = array();
 
 class bbp_5o1_toolbar_format {
 
@@ -19,14 +23,19 @@ class bbp_5o1_toolbar_format {
 		$tagregexp = join( '|', array_map('preg_quote', $tagnames) );
 		$pattern = '(.?)\[('.$tagregexp.')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)';
 		// This allows it to pick up the HTML <code> tag.
-		//$content = str_replace( array('<code>', '</code>'), array('[code]', '[/code]'), $content);
+		// $content = preg_replace( array('/\<code(\ title\=\"[^"]*\")?\>/', '/\<\/code\>/'), array('[code$1]', '[/code]'), $content );
 		return preg_replace_callback('/'.$pattern.'/s', 'do_shortcode_tag',  $content);
 	}
-	
+		
 	function do_code( $atts = null, $content = null ) {
+		global $magic_code_shortcode_content_array;
 		extract(shortcode_atts(array(
 			'title' => 'arbitrary',
 		), $atts));
+		$title = trim( $title );
+		if ( empty($title) ) $title = 'arbitrary';
+		$content = trim( $content );
+		if ( empty($content) ) return '&#91;code' . (($title == 'arbitrary')?'':' title="' . $title . '"') . '&#93;';
 		$count = substr_count( $content, "\n" );
 		$numbers = '';
 		for ($i = 0; $i <= $count; $i++) {
@@ -37,11 +46,39 @@ class bbp_5o1_toolbar_format {
 		$content = str_replace( array('<', '>', '[', ']'), array('&lt;', '&gt;', '&#91;', '&#93;'), $content );
 		$content = str_replace(array("\t","  "), array("&nbsp;&nbsp;", "&nbsp;&nbsp;"), $content);
 		$js = 'document.getElementById(\'' . $numid . '\').scrollTop = this.scrollTop; this.scrollTop =  document.getElementById(\'' . $numid . '\').scrollTop;';
-		return '<div class="code-main"><div class="code-title"><span>&nbsp;<strong>Code:</strong> '.$title.' </span><span style="float: right;">(<a onclick="fnSelect(\'' . $id . '\');">select</a>)</span></div><div class="code-num" id="' . $numid . '">' . $numbers . '</div><div class="code-line" onscroll="'.$js.'" id="' . $id . '">' . $content . '</div><div style="clear:both;"></div></div>';
+		if (is_bbpress()) {
+			$magic_code_shortcode_content_array[md5($content)] = $content;
+			$content = md5($content);
+		} else {
+			return '<pre>' . $content . '</pre>';
+		}
+		if ( $count == 0 ) {
+			return '<span class="code-inline">' . $content . '</span>';
+		} else {
+			return '<div class="code-main"><div class="code-title"><span>&nbsp;<strong>Code:</strong> '.$title.' </span><span style="float: right;">(<a onclick="fnSelect(\'' . $id . '\');">select</a>)</span></div><div class="code-num" id="' . $numid . '">' . $numbers . '</div><div class="code-line" onscroll="'.$js.'" id="' . $id . '">' . $content . '</div><div style="clear:both;"></div></div>';
+		}
+	}
+
+	function decode_magic_code_shortcode($content) {
+		global $magic_code_shortcode_content_array;
+		if ( !isset( $magic_code_shortcode_content_array ) or empty( $magic_code_shortcode_content_array ) )
+			return $content;
+		foreach ($magic_code_shortcode_content_array as $key => $value) {
+			$value = str_replace(array("\n"), array("<br />"), $value);
+			$content = str_replace($key, $value, $content);
+		}
+		return $content;
 	}
 	
 	function code_style() {
 		return <<<STYLE
+span.code-inline {
+	background-color: #f5f5f5;
+	font-family: monospace;
+	white-space: nowrap;
+	padding: 2px 3px;
+}
+
 div.code-title {
 	width: 99.25%;
 	font-family: monospace;
@@ -141,19 +178,15 @@ STYLE;
 						  'data' => "function(stack){insertHTML(stack, 'blockquote', []);}");
 		$items[] = array( 'action' => 'api_item',
 						  'inside_anchor' => '<img src="' . plugins_url( '/images/code.png', __FILE__ ) . '" title="Code" alt="Code" />',
-						  'data' => "function(stack){insertHTML(stack, 'code', []);}");
+						  'data' => "function(stack){insertShortcode(stack, 'code', [['title','']]);}");
 		$items[] = array( 'action' => 'switch_panel',
 						 'inside_anchor' => '<img src="' . plugins_url( '/images/fontcolor.png', __FILE__ ) . '" title="Color" alt="Color" />',
 						 'panel' => 'color',
 						 'data' => bbp_5o1_toolbar_format::color_formatting());
 		$items[] = array( 'action' => 'switch_panel',
-						 'inside_anchor' => '<img src="' . plugins_url( '/images/font.png', __FILE__ ) . '" title="Size" alt="Size" />',
+						 'inside_anchor' => '<img src="' . plugins_url( '/images/font.png', __FILE__ ) . '" title="Font Size & Face" alt="Font Size & Face" />',
 						 'panel' => 'size',
 						 'data' => bbp_5o1_toolbar_format::size_formatting());
-		$items[] = array( 'action' => 'switch_panel',
-						 'inside_anchor' => '<img src="' . plugins_url( '/images/font.png', __FILE__ ) . '" title="Font Face" alt="Font" />',
-						 'panel' => 'font',
-						 'data' => bbp_5o1_toolbar_format::font_formatting());
 		$items[] = array( 'action' => 'switch_panel',
 						 'inside_anchor' => '<img src="' . plugins_url( '/images/link.png', __FILE__ ) . '" title="Link" alt="Link" />',
 						 'panel' => 'links',
@@ -164,24 +197,7 @@ STYLE;
 <a class="toolbar-apply" style="margin-top: 1.4em;" onclick="insert_panel(\'link\');">Apply Link</a>');
 		return $items;
 	}
-	
-	function font_formatting() {
-		$fonts[] = "Arial";
-		$fonts[] = "'Comic Sans MS'";
-		$fonts[] = "Courier";
-		$fonts[] = "Georgia";
-		$fonts[] = "Helvetica";
-		$fonts[] = "'Times New Roman'";
-		$fonts[] = "Ubuntu";
-		$fonts[] = "Verdana";
-
-		$html = '';
-		foreach ($fonts as $font) {
-			$html .= '<a title="' . $font . '" onclick="insert_font(\'' . addslashes($font) . '\');" style="cursor: pointer; display: inline-block; margin:0 0.5em;font-family:' . $font . '; font-size: 1.4em;">' . $font . '</a> ';
-		}
-		return '<div style="text-align: center;">' . $html . '</div>';
-	}
-	
+		
 	function colors() {
 		$colors[] = 'Red';
 		$colors[] = 'Green';
@@ -212,7 +228,6 @@ STYLE;
 	function color_style() {
 		$colors = bbp_5o1_toolbar_format::colors();
 	 ?>
-<style type="text/css">/*<![CDATA[*/
 #post-toolbar .panel .color-choice,
 #post-toolbar .panel .color-choice-no {
 	width: <?php echo ( (1/(count($colors)+1))*100 ); ?>%;
@@ -223,8 +238,6 @@ STYLE;
 }
 
 <?php echo bbp_5o1_toolbar_format::code_style(); ?>
-
-/*]]>*/</style>
 	 <?php
 	}
 	
@@ -239,7 +252,22 @@ STYLE;
 		foreach ($sizes as $size) {
 			$html .= '<a class="size" onclick="insert_size(\'' . $size . '\');" style="font-size:' . $size . ';">' . $size . '</a>';
 		}
-		return '<div style="line-height: 50px;text-align:center;">' . $html . '</div>';
+		
+		$html .= '<br /><br />';
+		
+		$fonts[] = "Arial";
+		$fonts[] = "'Comic Sans MS'";
+		$fonts[] = "Courier";
+		$fonts[] = "Georgia";
+		$fonts[] = "Helvetica";
+		$fonts[] = "'Times New Roman'";
+		$fonts[] = "Ubuntu";
+		$fonts[] = "Verdana";
+		
+		foreach ($fonts as $font) {
+			$html .= '<a title="' . $font . '" onclick="insert_font(\'' . addslashes($font) . '\');" style="cursor: pointer; display: inline-block; margin:0 0.5em;font-family:' . $font . '; font-size: 1.4em;">' . $font . '</a> ';
+		}
+		return '<div style="text-align: center;">' . $html . '</div>';
 	}
 	
 }
