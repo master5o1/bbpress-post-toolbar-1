@@ -17,8 +17,8 @@ class bbp_5o1_smilies_panel {
 		if ( file_exists(WP_CONTENT_DIR . '/smilies/package-config.php') )
 			return content_url( '/smilies/' . $img );
 		elseif ( file_exists(dirname(__FILE__) . '/smilies/package-config.php') )
-			return plugins_url( '/smilies/' . $img, __FILE__ ); 
-		return $link;	
+			return plugins_url( '/smilies/' . $img, __FILE__ );
+		return $link;
 	}
 
 	function panel_entry($items) {
@@ -27,14 +27,16 @@ class bbp_5o1_smilies_panel {
 			$item['action'] = 'switch_panel';
 			$item['inside_anchor'] = str_replace( "class='wp-smiley' ", 'title="Smilies"', convert_smilies(':)') );
 			$item['data'] = "";
-			foreach ($wpsmiliestrans as $code => $name) {
-				$js = "insert_smiley('${code}');";
-				$item['data'] .= '<a class="smiley" onclick="' . $js . '">' . str_replace("class='wp-smiley' ", '', convert_smilies($code)) . '</a>';
+			// Allow duplicate codes to be parsed but not have buttons for those duplicates.
+			$smilies_array = array_flip($wpsmiliestrans);
+			foreach ($smilies_array as $name => $code) {
+				$js = "insert_smiley('" . addslashes($code) . "');";
+				$item['data'] .= '<a class="smiley" onclick="' . $js . '">' . str_replace("class='wp-smiley' ", 'title="' . $code . '" ', convert_smilies($code)) . '</a>';
 			}
 			$items[] = $item;
 		}
 		return $items;
-	}	
+	}
 }
 
 ?>

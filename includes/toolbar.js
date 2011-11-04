@@ -116,6 +116,11 @@ function insert_panel(tag) {
 		link = '[video]' + video_url.value + '[/video]';
 		post_form.value += link;
 		video_url.value = "";
+	} else if (tag == 'paste') {
+		paste_url = document.getElementById('paste_url');
+		link = '[paste]' + paste_url.value + '[/paste]';
+		post_form.value += link;
+		paste_url.value = "";
 	}
 	document.getElementById(toolbar_active_panel).style.display='none';
 	toolbar_active_panel='';
@@ -263,6 +268,7 @@ function formatText(tagstart,tagend) {
 // Delete the duplicate bars, or the bar completely:
 function delete_post_toolbar() {
 	var post_form = get_post_form();
+	var i;
 	if (!post_form) {
 		if (document.getElementById('post-toolbar') != null)
 			document.getElementById('post-toolbar').parentNode.removeChild(document.getElementById('post-toolbar'));
@@ -271,7 +277,7 @@ function delete_post_toolbar() {
 	k = 0;
 	toolbars = [];
 	divs = document.getElementsByTagName('div');
-	for (var i = 0; i < divs.length; i++) {
+	for (i = 0; i < divs.length; i++) {
 		if (divs[i].hasAttribute('id')) {
 			if (divs[i].getAttribute('id') == 'post-toolbar') {
 				toolbars[k] = divs[i];
@@ -279,7 +285,7 @@ function delete_post_toolbar() {
 			}
 		}
 	}
-	for (var i = 0; i < toolbars.length-1; i++) {
+	for (i = 0; i < toolbars.length-1; i++) {
 		var throwAway = toolbars[i].parentNode.removeChild(toolbars[i]);
 	}
 }
